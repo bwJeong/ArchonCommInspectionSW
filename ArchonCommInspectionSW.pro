@@ -26,10 +26,12 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    archon.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    archon.h
 
 FORMS += \
         mainwindow.ui
