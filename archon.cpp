@@ -17,22 +17,26 @@ bool Archon::archonConnect(QString ipAddr, QString portNumber) {
     return socket->waitForConnected();
 }
 
-bool Archon::archonDisconnect() {
+void Archon::archonDisconnect() {
     socket->disconnectFromHost();
-
-    return socket->waitForDisconnected();
 }
 
-qint64 Archon::archonSend(QString preCommand) {
+void Archon::archonSend(QString preCommand) {
     QString postCommand;
 
     postCommand.sprintf(">%02X%s\n", msgRef, preCommand.toStdString().c_str());
 
-    return socket->write(postCommand.toStdString().c_str(), postCommand.size());
+    if (socket->write(postCommand.toStdString().c_str(), postCommand.size()) != -1) {
+        emit archonSendSuccess();
+        msgRef++;
+    }
+    else {
+        emit archonSendFail();
+    }
 }
 
 QString Archon::archonRecv() {
-    QString reply;
+    QString reply, ack, ackFormat;
     QTime t;
 
     t.start();
@@ -41,16 +45,29 @@ QString Archon::archonRecv() {
 
         if (socket->canReadLine()) {
             reply = socket->readLine();
+            ack = reply.left(3);
 
-            return reply;
+            if (ack == ackFormat.sprintf("<%02X", msgRef)) {
+                emit archonRecvSuccess();
+                msgRef++;
+
+                return reply.remove(0, 3);
+            }
+            else {
+                emit archonRecvAckError();
+
+                return "";
+            }
         }
     }
+
+    emit archonRecvTimeout();
 
     return "";
 }
 
 QString Archon::archonBinRecv() {
-    QString reply;
+    QString reply, ack, ackFormat;
     QTime t;
     int binLen = BURST_LEN + 4;
 
@@ -60,36 +77,67 @@ QString Archon::archonBinRecv() {
 
         if (socket->isReadable() && socket->bytesAvailable() >= binLen) {
             reply = socket->read(binLen);
+            ack = reply.left(4);
 
-            return reply;
+            if (ack == ackFormat.sprintf("<%02X:", msgRef)) {
+                emit archonBinRecvSuccess();
+                msgRef++;
+
+                return reply.remove(0, 4);
+            }
+            else {
+                emit archonBinRecvAckError();
+
+                return "";
+            }
         }
     }
+
+    emit archonBinRecvTimeout();
 
     return "";
 }
 
-void Archon::configClear() {
-    configKeys->clear();
-    configValues->clear();
-}
+QString Archon::archonCmd(QString preCommand) {
+    // Send
+    QString postCommand;
 
-void Archon::configPush_back(QString key, QString value) {
-    configKeys->push_back(key);
-    configValues->push_back(value);
-}
+    postCommand.sprintf(">%02X%s\n", msgRef, preCommand.toStdString().c_str());
 
-int Archon::configSize() {
-    return configKeys->size();
-}
+    if (socket->write(postCommand.toStdString().c_str(), postCommand.size()) != -1) {
+        emit archonSendSuccess();
+    }
+    else {
+        emit archonSendFail();
+    }
 
-QString Archon::configKey_at(int i) {
-    return configKeys->at(i);
-}
+    // Recv
+    QString reply, ack, ackFormat;
+    QTime t;
 
-QString Archon::configValue_at(int i) {
-    return configValues->at(i);
-}
+    t.start();
 
-unsigned __int8 Archon::plusOneMsgRef() {
-    return msgRef++;
+    while (t.elapsed() <= 100) {
+
+        if (socket->canReadLine()) {
+            reply = socket->readLine();
+            ack = reply.left(3);
+
+            if (ack == ackFormat.sprintf("<%02X", msgRef)) {
+                emit archonRecvSuccess();
+                msgRef++;
+
+                return reply.remove(0, 3);
+            }
+            else {
+                emit archonRecvAckError();
+
+                return "";
+            }
+        }
+    }
+
+    emit archonRecvTimeout();
+
+    return "";
 }

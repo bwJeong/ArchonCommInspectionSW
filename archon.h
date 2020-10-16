@@ -11,19 +11,26 @@ class Archon {
 public:
     Archon();
 
+    // Connection
     bool archonConnect(QString ipAddr, QString portNumber);
-    bool archonDisconnect();
-    qint64 archonSend(QString preCommand);
+    void archonDisconnect();
+
+    // Tx & Rx
+    void archonSend(QString preCommand);
     QString archonRecv();
     QString archonBinRecv();
+    QString archonCmd(QString preCommand);
 
-    void configClear();
-    void configPush_back(QString key, QString value);
-    int configSize();
-    QString configKey_at(int i);
-    QString configValue_at(int i);
+signals:
+    void archonSendSuccess();
+    void archonSendFail();
+    void archonRecvSuccess();
+    void archonRecvAckError();
+    void archonRecvTimeout();
+    void archonBinRecvSuccess();
+    void archonBinRecvAckError();
+    void archonBinRecvTimeout();
 
-    unsigned __int8 plusOneMsgRef();
 
 private:
     QTcpSocket *socket;
