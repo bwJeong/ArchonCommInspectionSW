@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QVector>
+#include <QTimer>
 #include <QDebug>
 #include "archon.h"
 
@@ -22,11 +23,14 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void readConfig(QFile &rFile);
+
 signals:
-    void configFileReadError();
 
 public slots:
-    void readConfig(QFile &rFile);
+    void checkFrameStatusChange_1();
+    void archonSignalResponse_1(int num, QString str);
+    void processEvent();
 
 private slots:
     void on_btnReadConfig_1_clicked();
@@ -35,6 +39,10 @@ private slots:
 
     void on_btnTgConnection_1_toggled(bool checked);
 
+    void on_btnExpose_1_clicked();
+
+    void on_btnFetch_1_clicked();
+
 private:
     Ui::MainWindow *ui;   
     Archon *archon_1, *archon_2, *archon_3;
@@ -42,6 +50,7 @@ private:
     QVector<QString> configKeys_1, configValues_1;
     QVector<QString> configKeys_2, configValues_2;
     QVector<QString> configKeys_3, configValues_3;
+    QTimer *currentFrameCheckTimer;
 };
 
 #endif // MAINWINDOW_H
