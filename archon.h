@@ -1,15 +1,16 @@
 #ifndef ARCHON_H
 #define ARCHON_H
 
+#include <QObject>
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QTime>
-#include <QVector>
 #include <QString>
 
-class Archon {
+class Archon : public QObject {
+    Q_OBJECT
 public:
-    Archon();
+    explicit Archon(QObject *parent = nullptr);
 
     // Connection
     bool archonConnect(QString ipAddr, QString portNumber);
@@ -21,6 +22,8 @@ public:
     QString archonBinRecv();
     QString archonCmd(QString preCommand);
 
+    void minusOneMsgRef();
+
 signals:
     void archonSendSuccess();
     void archonSendFail();
@@ -31,10 +34,8 @@ signals:
     void archonBinRecvAckError();
     void archonBinRecvTimeout();
 
-
 private:
     QTcpSocket *socket;
-    QVector<QString> *configKeys, *configValues;
     unsigned __int8 msgRef;
 };
 

@@ -2,10 +2,8 @@
 
 #define BURST_LEN 1024
 
-Archon::Archon() {
+Archon::Archon(QObject *parent) : QObject(parent) {
     socket = new QTcpSocket();
-    configKeys = new QVector<QString>;
-    configValues = new QVector<QString>;
     msgRef = 0;
 }
 
@@ -140,4 +138,8 @@ QString Archon::archonCmd(QString preCommand) {
     emit archonRecvTimeout();
 
     return "";
+}
+
+void Archon::minusOneMsgRef() {
+    msgRef--;
 }
