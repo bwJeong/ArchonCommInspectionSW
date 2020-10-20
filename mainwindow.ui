@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tabConnection">
      <attribute name="title">
@@ -58,7 +58,7 @@
          <item>
           <widget class="QLineEdit" name="leIpAddr_1">
            <property name="inputMask">
-            <string>000.000.000.000;_</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -137,7 +137,7 @@
          <item>
           <widget class="QLineEdit" name="leIpAddr_2">
            <property name="inputMask">
-            <string>000.000.000.000;_</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -216,7 +216,7 @@
          <item>
           <widget class="QLineEdit" name="leIpAddr_3">
            <property name="inputMask">
-            <string>000.000.000.000;_</string>
+            <string/>
            </property>
           </widget>
          </item>
@@ -610,7 +610,7 @@
          <x>20</x>
          <y>190</y>
          <width>311</width>
-         <height>101</height>
+         <height>121</height>
         </rect>
        </property>
        <property name="title">
@@ -620,23 +620,30 @@
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
+           <widget class="QLabel" name="lbTemp_1">
+            <property name="text">
+             <string>MOD10/TEMP = </string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="lbSensorATemp_1">
             <property name="text">
-             <string>MODm/TEMPA = </string>
+             <string>MOD10/TEMPA = </string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="lbSensorBTemp_1">
             <property name="text">
-             <string>MODm/TEMPB = </string>
+             <string>MOD10/TEMPB = </string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLabel" name="lbSensorCTemp_1">
             <property name="text">
-             <string>MODm/TEMPC = </string>
+             <string>MOD10/TEMPC = </string>
             </property>
            </widget>
           </item>

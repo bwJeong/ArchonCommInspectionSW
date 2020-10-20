@@ -262,54 +262,63 @@ void MainWindow::archonSignalResponse_1(int num, QString str) {
 
     switch (num) {
     case 0x10: // archonSend() Success
-
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
         break;
 
     case 0x11: // archonSend() Fail
-
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
         break;
 
     case 0x20: // archonRecv() Success
-
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         break;
 
     case 0x21: // archonRecv() Fail
-
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
         break;
 
     case 0x22: // archonRecv() Timeout
-
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x30: // archonBinRecv() Success
-
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         break;
 
     case 0x31: // archonBinRecv() Fail
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
+        break;
 
+    case 0x32: // archonBinRecv() Timeout
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x40: // archonCmd() Send Success
-        ui->lwTx_1->addItem(dateNTime + str);
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
+        ui->lwTx_1->addItem(dateNTime + str.trimmed());
         ui->lwTx_1->scrollToBottom();
         break;
     case 0x41: // archonCmd() Send Fail
-        ui->lwTx_1->addItem(dateNTime + str + "-> Sending error!");
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str.trimmed() + "-> Sending error!\n"); }
+        ui->lwTx_1->addItem(dateNTime + str.trimmed() + "-> Sending error!");
         ui->lwTx_1->scrollToBottom();
         break;
 
     case 0x42: // archonCmd() Recv Success
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         ui->lwRx_1->addItem(dateNTime + str);
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x43: // archonCmd() Recv Fail
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
         ui->lwRx_1->addItem(dateNTime + str + "-> Ack error!");
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x44: // archonCmd() Recv Timeout
-        ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 0.1 s)");
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 5 s)\n"); }
+        ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 5 s)");
         ui->lwRx_1->scrollToBottom();
         break;
     }
@@ -410,7 +419,7 @@ void MainWindow::on_btnExpose_1_clicked() {
     archon_1->archonCmd(configCommand.sprintf("WCONFIG%04X%s=%s", configLineNum, "PARAMETER1", "Exposures=1"));
     archon_1->archonCmd("LOADPARAMS");
 
-    QTimer::singleShot(1000 + 100, this, SLOT(checkFrameStatusChange_1()));
+    QTimer::singleShot(5000, this, SLOT(checkFrameStatusChange_1()));
 }
 
 void MainWindow::on_btnFetch_1_clicked() {
@@ -450,7 +459,7 @@ void MainWindow::on_btnFetch_1_clicked() {
         return;
     }
 
-    for (int i = 0 ; i < lines; i++) {
+    for (int i = 0; i < lines; i++) {
         archon_1->minusOneMsgRef();
         imgFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)).toStdString().c_str());
         bytesRemaining -= lineSize;
@@ -471,14 +480,17 @@ void MainWindow::on_btnFetch_1_clicked() {
         QString str;
         QStringList keyValue = pair.split('=');
 
-        if (keyValue[0] == "MODm/TEMPA") {
-            ui->lbSensorATemp_1->setText(str.sprintf("MODm/TEMPA = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+        if (keyValue[0] == "MOD10/TEMP") {
+            ui->lbTemp_1->setText(str.sprintf("MODm/TEMPA = %s (C)",keyValue[1].trimmed().toStdString().c_str()));
+        }
+        else if (keyValue[0] == "MOD10/TEMPA") {
+            ui->lbSensorATemp_1->setText(str.sprintf("MODm/TEMPA = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
         else if (keyValue[0] == "MODm/TEMPB") {
-            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPB = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPB = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
         else if (keyValue[0] == "MODm/TEMPC") {
-            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPC = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+            ui->lbSensorCTemp_1->setText(str.sprintf("MODm/TEMPC = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
     }
 
