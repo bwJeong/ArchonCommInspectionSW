@@ -12,11 +12,19 @@ MainWindow::MainWindow(QWidget *parent) :
     archon_2 = new Archon(this);
     archon_3 = new Archon(this);
 
-    currentFrameCheckTimer = new QTimer(this);
-    connect(currentFrameCheckTimer, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
-
     connect(archon_1, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_1, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_1(int, QString)));
+
+    makeSaveDirectory();
+
+    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
+
+    ui->leLogSavePath_1->setText(saveDirectoryPath);
+    ui->leRawFileSavePath_1->setText(saveDirectoryPath);
+
+    isTxLogSaveFileCreated_1 = false;
+    isRxLogSaveFileCreated_1 = false;
+    hourCheck = "";
 }
 
 MainWindow::~MainWindow() {
@@ -59,6 +67,84 @@ void MainWindow::readConfig(QFile &rFile) {
     }
 }
 
+void MainWindow::makeSaveDirectory() {
+    QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QDir saveDirectory(documentsPath + "/ARCHONCOMMINSPECTIONSW_SAVEFILES");
+
+    saveDirectory.mkpath(documentsPath + "/ARCHONCOMMINSPECTIONSW_SAVEFILES");
+}
+
+void MainWindow::makeTxLogSaveFile_1() {
+    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
+    QString fileName = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+
+    txLogSaveFile_1 = new QFile(saveDirectoryPath + "/archon1_" +fileName + "_TxLog.txt");
+    txLogSaveFile_1->open(QIODevice::WriteOnly);
+    isTxLogSaveFileCreated_1 = true;
+}
+
+void MainWindow::makeRxLogSaveFile_1() {
+    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
+    QString fileName = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+
+    rxLogSaveFile_1 = new QFile(saveDirectoryPath + "/archon1_" + fileName + "_RxLog.txt");
+    rxLogSaveFile_1->open(QIODevice::WriteOnly);
+    isRxLogSaveFileCreated_1 = true;
+}
+
+void MainWindow::txLogAutoSave_1(QString txStr) {
+    QDateTime dateTime = QDateTime::currentDateTime();
+
+    if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
+        closeTxLogSaveFile_1();
+        makeTxLogSaveFile_1();
+    }
+
+    hourCheck = dateTime.toString("HH");
+    QString date = dateTime.toString("yyyy-MM-dd");
+    QString time = dateTime.toString("HH:mm:ss.zzz");
+    txLogSaveFile_1->write(date.toStdString().c_str());
+    txLogSaveFile_1->write(" ");
+    txLogSaveFile_1->write(time.toStdString().c_str());
+    txLogSaveFile_1->write(" ");
+    txLogSaveFile_1->write(txStr.toStdString().c_str());
+    txLogSaveFile_1->flush();
+}
+
+void MainWindow::rxLogAutoSave_1(QString rxStr) {
+    QDateTime dateTime = QDateTime::currentDateTime();
+
+    if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
+        closeRxLogSaveFile_1();
+        makeRxLogSaveFile_1();
+    }
+
+    hourCheck = dateTime.toString("HH");
+    QString date = dateTime.toString("yyyy-MM-dd");
+    QString time = dateTime.toString("HH:mm:ss.zzz");
+    rxLogSaveFile_1->write(date.toStdString().c_str());
+    rxLogSaveFile_1->write(" ");
+    rxLogSaveFile_1->write(time.toStdString().c_str());
+    rxLogSaveFile_1->write(" ");
+    rxLogSaveFile_1->write(rxStr.toStdString().c_str());
+    rxLogSaveFile_1->flush();
+}
+
+void MainWindow::closeTxLogSaveFile_1() {
+    isTxLogSaveFileCreated_1 = false;
+    txLogSaveFile_1->close();
+
+    delete txLogSaveFile_1;
+
+}
+
+void MainWindow::closeRxLogSaveFile_1() {
+    isRxLogSaveFileCreated_1 = false;
+    rxLogSaveFile_1->close();
+
+    delete rxLogSaveFile_1;
+}
+
 void MainWindow::checkFrameStatusChange_1() {
     QVector<int> currentFrameStatus = archon_1->newest();
 
@@ -69,8 +155,6 @@ void MainWindow::checkFrameStatusChange_1() {
         ui->btnExpose_1->setText("Exposure");
         ui->btnFetch_1->setEnabled(true);
         ui->btnFetch_1->setText("Fetch");
-
-        currentFrameCheckTimer->stop();
     }
 }
 
@@ -78,42 +162,54 @@ void MainWindow::archonSignalResponse_1(int num, QString str) {
     QString dateNTime = QDateTime::currentDateTime().toString("yy.MM.dd / hh:mm:ss - ");
 
     switch (num) {
-    case 0x10:
+    case 0x10: // archonSend() Success
+
+        break;
+
+    case 0x11: // archonSend() Fail
+
+        break;
+
+    case 0x20: // archonRecv() Success
+
+        break;
+
+    case 0x21: // archonRecv() Fail
+
+        break;
+
+    case 0x22: // archonRecv() Timeout
+
+        break;
+
+    case 0x30: // archonBinRecv() Success
+
+        break;
+
+    case 0x31: // archonBinRecv() Fail
+
+        break;
+
+    case 0x40: // archonCmd() Send Success
         ui->lwTx_1->addItem(dateNTime + str);
         ui->lwTx_1->scrollToBottom();
         break;
-
-    case 0x11:
+    case 0x41: // archonCmd() Send Fail
         ui->lwTx_1->addItem(dateNTime + str + "-> Sending error!");
         ui->lwTx_1->scrollToBottom();
         break;
 
-    case 0x20:
+    case 0x42: // archonCmd() Recv Success
         ui->lwRx_1->addItem(dateNTime + str);
         ui->lwRx_1->scrollToBottom();
         break;
 
-    case 0x21:
+    case 0x43: // archonCmd() Recv Fail
         ui->lwRx_1->addItem(dateNTime + str + "-> Ack error!");
         ui->lwRx_1->scrollToBottom();
         break;
 
-    case 0x22:
-        ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 0.1 s)");
-        ui->lwRx_1->scrollToBottom();
-        break;
-
-    case 0x30:
-        ui->lwRx_1->addItem(dateNTime + str);
-        ui->lwRx_1->scrollToBottom();
-        break;
-
-    case 0x31:
-        ui->lwRx_1->addItem(dateNTime + str + "-> Ack error!");
-        ui->lwRx_1->scrollToBottom();
-        break;
-
-    case 0x32:
+    case 0x44: // archonCmd() Recv Timeout
         ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 0.1 s)");
         ui->lwRx_1->scrollToBottom();
         break;
@@ -122,9 +218,7 @@ void MainWindow::archonSignalResponse_1(int num, QString str) {
     qApp->processEvents();
 }
 
-void MainWindow::processEvent() {
-    qApp->processEvents();
-}
+void MainWindow::processEvent() { qApp->processEvents(); }
 
 void MainWindow::on_btnReadConfig_1_clicked() {
     // Open config file
@@ -153,6 +247,9 @@ void MainWindow::on_btnReadConfig_1_clicked() {
 void MainWindow::on_btnApplyConfig_1_clicked() {
     QString configCommand;
 
+    ui->btnApplyConfig_1->setEnabled(false);
+    ui->btnApplyConfig_1->setText("Working...");
+
     archon_1->archonCmd("CLEARCONFIG");
 
     for (int i = 0; i < configKeys_1.size(); i++) {
@@ -165,6 +262,9 @@ void MainWindow::on_btnApplyConfig_1_clicked() {
 
     archon_1->archonCmd("APPLYALL");
     //archon_1->archonCmd("POWERON");
+
+    ui->btnApplyConfig_1->setEnabled(true);
+    ui->btnApplyConfig_1->setText("Apply config file");
 }
 
 void MainWindow::on_btnTgConnection_1_toggled(bool checked) {
@@ -211,16 +311,17 @@ void MainWindow::on_btnExpose_1_clicked() {
     archon_1->archonCmd(configCommand.sprintf("WCONFIG%04X%s=%s", configLineNum, "PARAMETER1", "Exposures=1"));
     archon_1->archonCmd("LOADPARAMS");
 
-    currentFrameCheckTimer->start(100);
+    QTimer::singleShot(1000 + 100, this, SLOT(checkFrameStatusChange_1()));
 }
 
 void MainWindow::on_btnFetch_1_clicked() {
-    QVector<int> lastFrameStatus = archon_1->getLastFrameStatus();
     QString command;
     QString fileName;
     int frameSize;
     int lineSize = BURST_LEN;
     int lines;
+
+    QVector<int> lastFrameStatus = archon_1->getLastFrameStatus();
 
     ui->btnFetch_1->setEnabled(false);
     ui->btnFetch_1->setText("Wait...");
@@ -237,12 +338,14 @@ void MainWindow::on_btnFetch_1_clicked() {
     lines = (frameSize + lineSize - 1) / lineSize;
     archon_1->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus[1] + 1) | 4) << 29, lines));
 
-    QFile imgFile(fileName.sprintf("archon_1_%dx%d_%d_1000ms.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
+    QFile imgFile(fileName.sprintf("archon1_%dx%d_%d_1000ms.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
     int bytesRemaining = frameSize;
 
     if (!imgFile.open(QFile::WriteOnly|QFile::Truncate)) {
         QMessageBox::warning(this, "Error", "Cannot open write file!");
+
         ui->btnFetch_1->setText("Fetch");
+
         return;
     }
 
@@ -257,4 +360,26 @@ void MainWindow::on_btnFetch_1_clicked() {
     archon_1->plusOneMsgRef();
 
     ui->btnFetch_1->setText("Complete");
+}
+
+void MainWindow::on_btnTgTxLogAutoSave_1_toggled(bool checked) {
+    if (checked) {
+        makeTxLogSaveFile_1();
+        ui->btnTgTxLogAutoSave_1->setText("Auto saving...");
+    }
+    else {
+        closeTxLogSaveFile_1();
+        ui->btnTgTxLogAutoSave_1->setText("Auto save");
+    }
+}
+
+void MainWindow::on_btnTgRxLogAutoSave_1_toggled(bool checked) {
+    if (checked) {
+        makeRxLogSaveFile_1();
+        ui->btnTgRxLogAutoSave_1->setText("Auto saving...");
+    }
+    else {
+        closeRxLogSaveFile_1();
+        ui->btnTgRxLogAutoSave_1->setText("Auto save");
+    }
 }

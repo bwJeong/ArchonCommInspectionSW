@@ -25,6 +25,17 @@ public:
 
     void readConfig(QFile &rFile);
 
+    //
+    void makeSaveDirectory();
+
+    //
+    void makeTxLogSaveFile_1();
+    void makeRxLogSaveFile_1();
+    void txLogAutoSave_1(QString txStr);
+    void rxLogAutoSave_1(QString rxStr);
+    void closeTxLogSaveFile_1();
+    void closeRxLogSaveFile_1();
+
 signals:
 
 public slots:
@@ -43,14 +54,21 @@ private slots:
 
     void on_btnFetch_1_clicked();
 
+    void on_btnTgTxLogAutoSave_1_toggled(bool checked);
+
+    void on_btnTgRxLogAutoSave_1_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;   
     Archon *archon_1, *archon_2, *archon_3;
+    QFile *txLogSaveFile_1, *rxLogSaveFile_1;
+
     QVector<QVector<QString>> sections_1, sections_2, sections_3;
     QVector<QString> configKeys_1, configValues_1;
     QVector<QString> configKeys_2, configValues_2;
     QVector<QString> configKeys_3, configValues_3;
-    QTimer *currentFrameCheckTimer;
+    bool isTxLogSaveFileCreated_1, isRxLogSaveFileCreated_1;
+    QString hourCheck;
 };
 
 #endif // MAINWINDOW_H

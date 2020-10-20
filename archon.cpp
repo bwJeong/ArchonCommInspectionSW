@@ -23,11 +23,11 @@ void Archon::archonSend(QString preCommand) {
     postCommand.sprintf(">%02X%s\n", msgRef, preCommand.toStdString().c_str());
 
     if (socket->write(postCommand.toStdString().c_str(), postCommand.size()) != -1) {
-        emit archonSignal(0x10, postCommand);
+        //emit archonSignal(0x10, postCommand);
         msgRef++;
     }
     else {
-        emit archonSignal(0x11, postCommand);
+        //emit archonSignal(0x11, postCommand);
     }
 }
 
@@ -44,13 +44,13 @@ QString Archon::archonRecv() {
             ack = reply.left(3);
 
             if (ack == ackFormat.sprintf("<%02X", msgRef)) {
-                emit archonSignal(0x20, ack);
+                //emit archonSignal(0x20, ack);
                 msgRef++;
 
                 return reply.remove(0, 3);
             }
             else {
-                emit archonSignal(0x21, ack);
+                //emit archonSignal(0x21, ack);
 
                 return "";
             }
@@ -59,7 +59,7 @@ QString Archon::archonRecv() {
         emit processEvent();
     }
 
-    emit archonSignal(0x22);
+    //emit archonSignal(0x22);
 
     return "";
 }
@@ -78,13 +78,13 @@ QString Archon::archonBinRecv() {
             ack = reply.left(4);
 
             if (ack == ackFormat.sprintf("<%02X:", msgRef)) {
-                emit archonSignal(0x30, ack);
+                //emit archonSignal(0x30, ack);
                 msgRef++;
 
                 return reply.remove(0, 4);
             }
             else {
-                emit archonSignal(0x31, ack);
+                //emit archonSignal(0x31, ack);
 
                 return "";
             }
@@ -93,7 +93,7 @@ QString Archon::archonBinRecv() {
         emit processEvent();
     }
 
-    emit archonSignal(0x32);
+    //emit archonSignal(0x32);
 
     return "";
 }
@@ -105,10 +105,10 @@ QString Archon::archonCmd(QString preCommand) {
     postCommand.sprintf(">%02X%s\n", msgRef, preCommand.toStdString().c_str());
 
     if (socket->write(postCommand.toStdString().c_str(), postCommand.size()) != -1) {
-        emit archonSignal(0x10, postCommand);
+        emit archonSignal(0x40, postCommand);
     }
     else {
-        emit archonSignal(0x11, postCommand);
+        emit archonSignal(0x41, postCommand);
     }
 
     // Recv
@@ -117,20 +117,20 @@ QString Archon::archonCmd(QString preCommand) {
 
     t.start();
 
-    while (t.elapsed() <= 100) {
+    while (t.elapsed() <= 5000) {
 
         if (socket->canReadLine()) {
             reply = socket->readLine();
             ack = reply.left(3);
 
             if (ack == ackFormat.sprintf("<%02X", msgRef)) {
-                emit archonSignal(0x20, ack);
+                emit archonSignal(0x42, ack);
                 msgRef++;
 
                 return reply.remove(0, 3);
             }
             else {
-                emit archonSignal(0x21, ack);
+                emit archonSignal(0x43, ack);
 
                 return "";
             }
@@ -139,7 +139,7 @@ QString Archon::archonCmd(QString preCommand) {
         emit processEvent();
     }
 
-    emit archonSignal(0x22);
+    emit archonSignal(0x44);
 
     return "";
 }
@@ -190,11 +190,11 @@ QVector<int> Archon::newest() {
     frameH = frameStatus[archonFormat.sprintf("BUF%dHEIGHT", newestBuf + 1)];
     sampleMode = frameStatus[archonFormat.sprintf("BUF%dSAMPLE", newestBuf + 1)];
 
-    returnValues.push_back(newestFrame);
-    returnValues.push_back(newestBuf);
-    returnValues.push_back(frameW);
-    returnValues.push_back(frameH);
-    returnValues.push_back(sampleMode);
+    returnValues[0] = newestFrame;
+    returnValues[1] = newestBuf;
+    returnValues[2] = frameW;
+    returnValues[3] = frameH;
+    returnValues[4] = sampleMode;
 
     return returnValues;
 }
