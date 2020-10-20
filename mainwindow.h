@@ -5,10 +5,12 @@
 #include <QMessageBox>
 #include <QDateTime>
 #include <QFile>
+#include <QFileInfo>
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QVector>
 #include <QTimer>
+#include <QtEndian>
 #include <QDebug>
 #include "archon.h"
 
@@ -28,13 +30,17 @@ public:
     //
     void makeSaveDirectory();
 
-    //
     void makeTxLogSaveFile_1();
     void makeRxLogSaveFile_1();
     void txLogAutoSave_1(QString txStr);
     void rxLogAutoSave_1(QString rxStr);
     void closeTxLogSaveFile_1();
     void closeRxLogSaveFile_1();
+
+    // raw2fits
+    void addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment);
+    void endFITSHeader(QFile &fitsFile, int lines);
+    void saveFITS(QFile &rawFile, const int w, const int h);
 
 signals:
 

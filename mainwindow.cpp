@@ -145,6 +145,105 @@ void MainWindow::closeRxLogSaveFile_1() {
     delete rxLogSaveFile_1;
 }
 
+void MainWindow::addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment) {
+    fitsFile.write(qPrintable(QString("%1= %2 / %3").arg(key, -8).arg(value, 20).arg(comment, -48)), 80);
+}
+
+void MainWindow::endFITSHeader(QFile &fitsFile, int lines) {
+    fitsFile.write(qPrintable(QString("%1").arg("END", -80)), 80);
+
+    for (lines = 35 - lines; lines > 0; lines--) {
+        fitsFile.write(qPrintable(QString("%1").arg(" ", -80)), 80);
+    }
+}
+
+void MainWindow::saveFITS(QFile &rawFile, const int w, const int h) {
+    int i, x, y, linesize, headerlines;
+    QVector<quint16> buf;
+    quint16 *linebuf;
+    char pad[2880];
+    QString s;
+
+    // Read raw file
+    while (!rawFile.atEnd()) {
+        QByteArray temp = rawFile.read(2);
+        quint16 elem = qToBigEndian((quint16)((temp[0] << 8) | (temp[1])));
+
+        buf.push_back(elem);
+    }
+
+    // Fill FITS padding with zeroes
+    for (y = 0; y < 2880; y++)
+        pad[y] = 0;
+
+    // Create file name
+    s = rawFile.fileName().split(".")[0] + ".fits";
+
+    // Save file
+    QFile fitsFile(s);
+
+    if (!fitsFile.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::warning(this, "Error", "Cannot open write file!");
+
+        return;
+    }
+
+    linesize = w * 2;
+
+    // Write primary FITS header
+    headerlines = 0;
+
+    addFITSHeader(fitsFile, "SIMPLE", "T", "Conform to FITS standard"); headerlines++;
+    addFITSHeader(fitsFile, "BITPIX", "16", "Unsigned short data"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS", "2", "Number of axes"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS1", QString::number(w), "Image width"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS2", QString::number(h), "Image height"); headerlines++;
+    addFITSHeader(fitsFile, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
+    addFITSHeader(fitsFile, "BSCALE", "1", "Default scaling factor"); headerlines++;
+    endFITSHeader(fitsFile, headerlines);
+
+    // Write image data (byte order must be swapped)
+    linebuf = new quint16[w];
+
+    for (y = 0; y < h; y++) {
+        for (x = 0; x < w; x++) {
+            linebuf[x] = qToBigEndian((quint16)(buf[x + y * w] ^ 0x8000));
+
+            qApp->processEvents();
+        }
+
+        if (fitsFile.write((char *)linebuf, linesize) != linesize) {
+            QMessageBox::warning(this, "Error", "Cannot write fits file!");
+
+            rawFile.close();
+            fitsFile.close();
+
+            return;
+        }
+
+    }
+
+    delete[] linebuf;
+
+    // Pad to end of FITS block
+    i = 2880 - (w * h * 2) % 2880;
+
+    if (i != 2880) {
+        if (fitsFile.write(pad, i) != i) {
+            printf("Cannot write fits file! [err code: 02]\n");
+
+            rawFile.close();
+            fitsFile.close();
+
+            return;
+        }
+    }
+
+    rawFile.close();
+    fitsFile.close();
+}
+
 void MainWindow::checkFrameStatusChange_1() {
     QVector<int> currentFrameStatus = archon_1->newest();
 
@@ -152,7 +251,7 @@ void MainWindow::checkFrameStatusChange_1() {
         archon_1->recordCurrentFrameStatus();
 
         ui->btnExpose_1->setEnabled(true);
-        ui->btnExpose_1->setText("Exposure");
+        ui->btnExpose_1->setText("Expose");
         ui->btnFetch_1->setEnabled(true);
         ui->btnFetch_1->setText("Fetch");
     }
@@ -315,6 +414,8 @@ void MainWindow::on_btnExpose_1_clicked() {
 }
 
 void MainWindow::on_btnFetch_1_clicked() {
+    // Fetch
+    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
     QString command;
     QString fileName;
     int frameSize;
@@ -338,7 +439,7 @@ void MainWindow::on_btnFetch_1_clicked() {
     lines = (frameSize + lineSize - 1) / lineSize;
     archon_1->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus[1] + 1) | 4) << 29, lines));
 
-    QFile imgFile(fileName.sprintf("archon1_%dx%d_%d_1000ms.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
+    QFile imgFile(saveDirectoryPath + fileName.sprintf("/archon1_%dx%d_%d_1000ms.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
     int bytesRemaining = frameSize;
 
     if (!imgFile.open(QFile::WriteOnly|QFile::Truncate)) {
@@ -358,6 +459,43 @@ void MainWindow::on_btnFetch_1_clicked() {
     imgFile.close();
 
     archon_1->plusOneMsgRef();
+
+    // Read status
+    QString response = archon_1->archonCmd("STATUS");
+
+    if (response == "") { return; }
+
+    QStringList pairs = response.split(' ');
+
+    for (auto pair : pairs) {
+        QString str;
+        QStringList keyValue = pair.split('=');
+
+        if (keyValue[0] == "MODm/TEMPA") {
+            ui->lbSensorATemp_1->setText(str.sprintf("MODm/TEMPA = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+        }
+        else if (keyValue[0] == "MODm/TEMPB") {
+            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPB = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+        }
+        else if (keyValue[0] == "MODm/TEMPC") {
+            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPC = %d (K)",keyValue[1].trimmed().toStdString().c_str()));
+        }
+    }
+
+    // raw2fits
+    QFile rawFile(saveDirectoryPath + fileName);
+
+    if (!rawFile.open(QFile::ReadOnly)) {
+        QMessageBox::warning(this, "Error", "Cannot open raw file!");
+
+        return;
+    }
+
+    QFileInfo fileInfo(rawFile.fileName());
+    int w = fileInfo.fileName().split("_")[1].split("x")[0].toInt();
+    int h = fileInfo.fileName().split("_")[1].split("x")[1].toInt();
+
+    saveFITS(rawFile, w, h);
 
     ui->btnFetch_1->setText("Complete");
 }
