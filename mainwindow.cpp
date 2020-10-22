@@ -15,6 +15,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(archon_1, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_1, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_1(int, QString)));
 
+    frameStatusCheckTimer = new QTimer(this);
+
+    connect(frameStatusCheckTimer, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
+
     makeSaveDirectory();
 
     QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
@@ -254,6 +258,8 @@ void MainWindow::checkFrameStatusChange_1() {
         ui->btnExpose_1->setText("Expose");
         ui->btnFetch_1->setEnabled(true);
         ui->btnFetch_1->setText("Fetch");
+
+        frameStatusCheckTimer->stop();
     }
 }
 
@@ -419,7 +425,7 @@ void MainWindow::on_btnExpose_1_clicked() {
     archon_1->archonCmd(configCommand.sprintf("WCONFIG%04X%s=%s", configLineNum, "PARAMETER1", "Exposures=1"));
     archon_1->archonCmd("LOADPARAMS");
 
-    QTimer::singleShot(5000, this, SLOT(checkFrameStatusChange_1()));
+    frameStatusCheckTimer->start(500);
 }
 
 void MainWindow::on_btnFetch_1_clicked() {

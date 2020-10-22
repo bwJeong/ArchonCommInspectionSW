@@ -68,6 +68,7 @@ private:
     Ui::MainWindow *ui;   
     Archon *archon_1, *archon_2, *archon_3;
     QFile *txLogSaveFile_1, *rxLogSaveFile_1;
+    QTimer *frameStatusCheckTimer;
 
     QVector<QVector<QString>> sections_1, sections_2, sections_3;
     QVector<QString> configKeys_1, configValues_1;
