@@ -145,7 +145,7 @@ void MainWindow::endFITSHeader(QFile &fitsFile, int lines) {
     }
 }
 
-void MainWindow::saveFITS(QFile &rawFile, const int w, const int h) {
+void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QString> &statusKeys, QVector<QString> &statusValues) {
     int i, x, y, linesize, headerlines;
     QVector<quint16> buf;
     quint16 *linebuf;
@@ -189,6 +189,11 @@ void MainWindow::saveFITS(QFile &rawFile, const int w, const int h) {
     addFITSHeader(fitsFile, "NAXIS2", QString::number(h), "Image height"); headerlines++;
     addFITSHeader(fitsFile, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
     addFITSHeader(fitsFile, "BSCALE", "1", "Default scaling factor"); headerlines++;
+
+    for (int i = 0; i < statusKeys.size(); i++) {
+        addFITSHeader(fitsFile, statusKeys[i], statusValues[i], "Archon status"); headerlines++;
+    }
+
     endFITSHeader(fitsFile, headerlines);
 
     // Write image data (byte order must be swapped)
@@ -467,18 +472,8 @@ void MainWindow::on_btnFetch_1_clicked() {
         QString str;
         QStringList keyValue = pair.split('=');
 
-        if (keyValue[0] == "MOD10/TEMP") {
-            ui->lbTemp_1->setText(str.sprintf("MOD10/TEMPA = %s (C)",keyValue[1].trimmed().toStdString().c_str()));
-        }
-        else if (keyValue[0] == "MOD10/TEMPA") {
-            ui->lbSensorATemp_1->setText(str.sprintf("MOD10/TEMPA = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
-        }
-        else if (keyValue[0] == "MOD10/TEMPB") {
-            ui->lbSensorBTemp_1->setText(str.sprintf("MOD10/TEMPB = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
-        }
-        else if (keyValue[0] == "MOD10/TEMPC") {
-            ui->lbSensorCTemp_1->setText(str.sprintf("MOD10/TEMPC = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
-        }
+        statusKeys_1.push_back(keyValue[0]);
+        statusKeys_1.push_back(keyValue[1]);
     }
 
     // raw2fits
@@ -494,7 +489,7 @@ void MainWindow::on_btnFetch_1_clicked() {
     int w = fileInfo.fileName().split("_")[1].split("x")[0].toInt();
     int h = fileInfo.fileName().split("_")[1].split("x")[1].toInt();
 
-    saveFITS(rRawFile, w, h);
+    saveFITS(rRawFile, w, h, statusKeys_1, statusValues_1);
 
     ui->btnFetch_1->setText("Complete");
 }

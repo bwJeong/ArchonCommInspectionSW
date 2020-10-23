@@ -422,53 +422,6 @@
         </item>
        </layout>
       </widget>
-      <widget class="QGroupBox" name="groupBox_10">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>190</y>
-         <width>311</width>
-         <height>121</height>
-        </rect>
-       </property>
-       <property name="title">
-        <string>Status</string>
-       </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="lbTemp_1">
-            <property name="text">
-             <string>MOD10/TEMP = </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbSensorATemp_1">
-            <property name="text">
-             <string>MOD10/TEMPA = </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbSensorBTemp_1">
-            <property name="text">
-             <string>MOD10/TEMPB = </string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbSensorCTemp_1">
-            <property name="text">
-             <string>MOD10/TEMPC = </string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
      </widget>
      <widget class="QWidget" name="horizontalLayoutWidget">
       <property name="geometry">

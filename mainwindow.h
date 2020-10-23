@@ -38,7 +38,7 @@ public:
     // raw2fits
     void addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment);
     void endFITSHeader(QFile &fitsFile, int lines);
-    void saveFITS(QFile &rawFile, const int w, const int h);
+    void saveFITS(QFile &rawFile, const int w, const int h, QVector<QString> &statusKeys, QVector<QString> &statusValues);
 
 signals:
 
@@ -66,6 +66,7 @@ private:
     QVector<QString> configKeys_1, configValues_1;
     QVector<QString> configKeys_2, configValues_2;
     QVector<QString> configKeys_3, configValues_3;
+    QVector<QString> statusKeys_1, statusValues_1;
     bool isTxLogSaveFileCreated_1, isRxLogSaveFileCreated_1;
     QString hourCheck;
 };
