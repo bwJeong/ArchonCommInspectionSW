@@ -64,73 +64,73 @@ void MainWindow::readConfig(QFile &rFile, QVector<QVector<QString>> &sections, Q
     }
 }
 
-void MainWindow::makeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated) {
+void MainWindow::makeTxLogSaveFile_1() {
     QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
 
-    txLogSaveFile = new QFile("Guide_" +dateTime + "_TxLog.txt");
-    txLogSaveFile->open(QIODevice::WriteOnly);
-    isTxLogSaveFileCreated = true;
+    txLogSaveFile_1 = new QFile("Guide_" + dateTime + "_TxLog.txt");
+    txLogSaveFile_1->open(QIODevice::WriteOnly);
+    isTxLogSaveFileCreated_1 = true;
 }
 
-void MainWindow::makeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated) {
+void MainWindow::makeRxLogSaveFile_1() {
     QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
 
-    rxLogSaveFile = new QFile("Guide_" + dateTime + "_RxLog.txt");
-    rxLogSaveFile->open(QIODevice::WriteOnly);
-    isRxLogSaveFileCreated = true;
+    rxLogSaveFile_1 = new QFile("Guide_" + dateTime + "_RxLog.txt");
+    rxLogSaveFile_1->open(QIODevice::WriteOnly);
+    isRxLogSaveFileCreated_1 = true;
 }
 
-void MainWindow::txLogAutoSave(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated, QString txStr) {
+void MainWindow::txLogAutoSave_1(QString txStr) {
     QDateTime dateTime = QDateTime::currentDateTime();
 
     if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
-        closeTxLogSaveFile(txLogSaveFile, isTxLogSaveFileCreated);
-        makeTxLogSaveFile(txLogSaveFile, isTxLogSaveFileCreated);
+        closeTxLogSaveFile_1();
+        makeTxLogSaveFile_1();
     }
 
     hourCheck = dateTime.toString("HH");
     QString date = dateTime.toString("yyyy-MM-dd");
     QString time = dateTime.toString("HH:mm:ss.zzz");
-    txLogSaveFile->write(date.toStdString().c_str());
-    txLogSaveFile->write(" ");
-    txLogSaveFile->write(time.toStdString().c_str());
-    txLogSaveFile->write(" ");
-    txLogSaveFile->write(txStr.toStdString().c_str());
-    txLogSaveFile->flush();
+    txLogSaveFile_1->write(date.toStdString().c_str());
+    txLogSaveFile_1->write(" ");
+    txLogSaveFile_1->write(time.toStdString().c_str());
+    txLogSaveFile_1->write(" ");
+    txLogSaveFile_1->write(txStr.toStdString().c_str());
+    txLogSaveFile_1->flush();
 }
 
-void MainWindow::rxLogAutoSave(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated, QString rxStr) {
+void MainWindow::rxLogAutoSave_1(QString rxStr) {
     QDateTime dateTime = QDateTime::currentDateTime();
 
     if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
-        closeRxLogSaveFile(rxLogSaveFile, isRxLogSaveFileCreated);
-        makeRxLogSaveFile(rxLogSaveFile, isRxLogSaveFileCreated);
+        closeRxLogSaveFile_1();
+        makeRxLogSaveFile_1();
     }
 
     hourCheck = dateTime.toString("HH");
     QString date = dateTime.toString("yyyy-MM-dd");
     QString time = dateTime.toString("HH:mm:ss.zzz");
-    rxLogSaveFile->write(date.toStdString().c_str());
-    rxLogSaveFile->write(" ");
-    rxLogSaveFile->write(time.toStdString().c_str());
-    rxLogSaveFile->write(" ");
-    rxLogSaveFile->write(rxStr.toStdString().c_str());
-    rxLogSaveFile->flush();
+    rxLogSaveFile_1->write(date.toStdString().c_str());
+    rxLogSaveFile_1->write(" ");
+    rxLogSaveFile_1->write(time.toStdString().c_str());
+    rxLogSaveFile_1->write(" ");
+    rxLogSaveFile_1->write(rxStr.toStdString().c_str());
+    rxLogSaveFile_1->flush();
 }
 
-void MainWindow::closeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated) {
-    isTxLogSaveFileCreated = false;
-    txLogSaveFile->close();
+void MainWindow::closeTxLogSaveFile_1() {
+    isTxLogSaveFileCreated_1 = false;
+    txLogSaveFile_1->close();
 
-    delete txLogSaveFile;
+    delete txLogSaveFile_1;
 
 }
 
-void MainWindow::closeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated) {
-    isRxLogSaveFileCreated = false;
-    rxLogSaveFile->close();
+void MainWindow::closeRxLogSaveFile_1() {
+    isRxLogSaveFileCreated_1 = false;
+    rxLogSaveFile_1->close();
 
-    delete rxLogSaveFile;
+    delete rxLogSaveFile_1;
 }
 
 void MainWindow::addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment) {
@@ -138,9 +138,12 @@ void MainWindow::addFITSHeader(QFile &fitsFile, QString key, QString value, QStr
 }
 
 void MainWindow::endFITSHeader(QFile &fitsFile, int lines) {
+    int quotient = lines * 80 / 2880;
+    int totalLines = (quotient + 1) * 36 - 1;
+
     fitsFile.write(qPrintable(QString("%1").arg("END", -80)), 80);
 
-    for (lines = 35 - lines; lines > 0; lines--) {
+    for (lines = totalLines - lines; lines > 0; lines--) {
         fitsFile.write(qPrintable(QString("%1").arg(" ", -80)), 80);
     }
 }
@@ -189,6 +192,7 @@ void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QStr
     addFITSHeader(fitsFile, "NAXIS2", QString::number(h), "Image height"); headerlines++;
     addFITSHeader(fitsFile, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
     addFITSHeader(fitsFile, "BSCALE", "1", "Default scaling factor"); headerlines++;
+    addFITSHeader(fitsFile, "DATETIME", fitsDateTime, "Date & Time"); headerlines++;
 
     for (int i = 0; i < statusKeys.size(); i++) {
         addFITSHeader(fitsFile, statusKeys[i], statusValues[i], "Archon status"); headerlines++;
@@ -257,62 +261,62 @@ void MainWindow::archonSignalResponse_1(int num, QString str) {
 
     switch (num) {
     case 0x10: // archonSend() Success
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
         break;
 
     case 0x11: // archonSend() Fail
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
         break;
 
     case 0x20: // archonRecv() Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         break;
 
     case 0x21: // archonRecv() Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
         break;
 
     case 0x22: // archonRecv() Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 0.1 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x30: // archonBinRecv() Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         break;
 
     case 0x31: // archonBinRecv() Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
         break;
 
     case 0x32: // archonBinRecv() Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 0.1 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x40: // archonCmd() Send Success
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
         ui->lwTx_1->addItem(dateNTime + str.trimmed());
         ui->lwTx_1->scrollToBottom();
         break;
     case 0x41: // archonCmd() Send Fail
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str.trimmed() + "-> Sending error!\n"); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str.trimmed() + "-> Sending error!\n"); }
         ui->lwTx_1->addItem(dateNTime + str.trimmed() + "-> Sending error!");
         ui->lwTx_1->scrollToBottom();
         break;
 
     case 0x42: // archonCmd() Recv Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
         ui->lwRx_1->addItem(dateNTime + str);
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x43: // archonCmd() Recv Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
         ui->lwRx_1->addItem(dateNTime + str + "-> Ack error!");
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x44: // archonCmd() Recv Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 5 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 5 s)\n"); }
         ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 5 s)");
         ui->lwRx_1->scrollToBottom();
         break;
@@ -412,6 +416,8 @@ void MainWindow::on_btnExpose_1_clicked() {
     archon_1->archonCmd(configCommand.sprintf("WCONFIG%04X%s=%s", configLineNum, "PARAMETER1", "Exposures=1"));
     archon_1->archonCmd("LOADPARAMS");
 
+    fitsDateTime = QDateTime::currentDateTime().toString("yyyy-MM-ddTHH:mm:ss");
+
     frameStatusCheckTimer_1->start(500);
 }
 
@@ -453,7 +459,7 @@ void MainWindow::on_btnFetch_1_clicked() {
 
     for (int i = 0; i < lines; i++) {
         archon_1->minusOneMsgRef();
-        wRawFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)).toStdString().c_str());
+        wRawFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)));
         bytesRemaining -= lineSize;
     }
 
@@ -466,14 +472,14 @@ void MainWindow::on_btnFetch_1_clicked() {
 
     if (response == "") { return; }
 
-    QStringList pairs = response.split(' ');
+    QStringList pairs = response.trimmed().split(' ');
 
     for (auto pair : pairs) {
         QString str;
         QStringList keyValue = pair.split('=');
 
         statusKeys_1.push_back(keyValue[0]);
-        statusKeys_1.push_back(keyValue[1]);
+        statusValues_1.push_back(keyValue[1]);
     }
 
     // raw2fits
@@ -496,22 +502,22 @@ void MainWindow::on_btnFetch_1_clicked() {
 
 void MainWindow::on_btnTgTxLogAutoSave_1_toggled(bool checked) {
     if (checked) {
-        makeTxLogSaveFile(txLogSaveFile_1, isTxLogSaveFileCreated_1);
+        makeTxLogSaveFile_1();
         ui->btnTgTxLogAutoSave_1->setText("Auto saving...");
     }
     else {
-        closeTxLogSaveFile(txLogSaveFile_1, isTxLogSaveFileCreated_1);
+        closeTxLogSaveFile_1();
         ui->btnTgTxLogAutoSave_1->setText("Auto save");
     }
 }
 
 void MainWindow::on_btnTgRxLogAutoSave_1_toggled(bool checked) {
     if (checked) {
-        makeRxLogSaveFile(rxLogSaveFile_1, isRxLogSaveFileCreated_1);
+        makeRxLogSaveFile_1();
         ui->btnTgRxLogAutoSave_1->setText("Auto saving...");
     }
     else {
-        closeRxLogSaveFile(rxLogSaveFile_1, isRxLogSaveFileCreated_1);
+        closeRxLogSaveFile_1();
         ui->btnTgRxLogAutoSave_1->setText("Auto save");
     }
 }

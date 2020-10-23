@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tabConnection">
      <attribute name="title">
@@ -601,7 +601,7 @@
         <item>
          <widget class="QPushButton" name="btnFetch_2">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Fetch</string>

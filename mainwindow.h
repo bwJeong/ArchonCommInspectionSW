@@ -28,12 +28,12 @@ public:
     void readConfig(QFile &rFile, QVector<QVector<QString>> &sections, QVector<QString> &configKeys, QVector<QString> &configValues);
 
     //
-    void makeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated);
-    void makeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated);
-    void txLogAutoSave(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated, QString txStr);
-    void rxLogAutoSave(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated, QString rxStr);
-    void closeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated);
-    void closeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated);
+    void makeTxLogSaveFile_1();
+    void makeRxLogSaveFile_1();
+    void txLogAutoSave_1(QString txStr);
+    void rxLogAutoSave_1(QString rxStr);
+    void closeTxLogSaveFile_1();
+    void closeRxLogSaveFile_1();
 
     // raw2fits
     void addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment);
@@ -69,6 +69,7 @@ private:
     QVector<QString> statusKeys_1, statusValues_1;
     bool isTxLogSaveFileCreated_1, isRxLogSaveFileCreated_1;
     QString hourCheck;
+    QString fitsDateTime;
 };
 
 #endif // MAINWINDOW_H
