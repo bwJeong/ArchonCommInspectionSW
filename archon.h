@@ -21,7 +21,7 @@ public:
     // Tx & Rx
     void archonSend(QString preCommand);
     QString archonRecv();
-    QString archonBinRecv();
+    QByteArray archonBinRecv();
     QString archonCmd(QString preCommand);
 
     // Frame

@@ -64,8 +64,9 @@ QString Archon::archonRecv() {
     return "";
 }
 
-QString Archon::archonBinRecv() {
-    QString reply, ack, ackFormat;
+QByteArray Archon::archonBinRecv() {
+    QByteArray reply;
+    QString ack, ackFormat;
     QTime t;
     int binLen = BURST_LEN + 4;
 

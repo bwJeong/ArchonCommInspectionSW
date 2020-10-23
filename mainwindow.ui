@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tabConnection">
      <attribute name="title">
@@ -43,7 +43,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Archon controller 1</string>
+       <string>Guide</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -59,6 +59,9 @@
           <widget class="QLineEdit" name="leIpAddr_1">
            <property name="inputMask">
             <string/>
+           </property>
+           <property name="text">
+            <string>10.0.0.2</string>
            </property>
           </widget>
          </item>
@@ -83,7 +86,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lePortNumber_1"/>
+          <widget class="QLineEdit" name="lePortNumber_1">
+           <property name="text">
+            <string>4242</string>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_2">
@@ -122,7 +129,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Archon controller 2</string>
+       <string>Sci_1</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
@@ -138,6 +145,9 @@
           <widget class="QLineEdit" name="leIpAddr_2">
            <property name="inputMask">
             <string/>
+           </property>
+           <property name="text">
+            <string>10.0.0.12</string>
            </property>
           </widget>
          </item>
@@ -162,7 +172,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lePortNumber_2"/>
+          <widget class="QLineEdit" name="lePortNumber_2">
+           <property name="text">
+            <string>4242</string>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_4">
@@ -201,7 +215,7 @@
        </rect>
       </property>
       <property name="title">
-       <string>Archon controller 3</string>
+       <string>Sci_2</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
@@ -217,6 +231,9 @@
           <widget class="QLineEdit" name="leIpAddr_3">
            <property name="inputMask">
             <string/>
+           </property>
+           <property name="text">
+            <string>10.0.0.13</string>
            </property>
           </widget>
          </item>
@@ -241,7 +258,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lePortNumber_3"/>
+          <widget class="QLineEdit" name="lePortNumber_3">
+           <property name="text">
+            <string>4242</string>
+           </property>
+          </widget>
          </item>
          <item>
           <spacer name="horizontalSpacer_6">
@@ -271,215 +292,9 @@
       </layout>
      </widget>
     </widget>
-    <widget class="QWidget" name="tabConfig">
-     <attribute name="title">
-      <string>Config</string>
-     </attribute>
-     <widget class="QGroupBox" name="groupBox_7">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>20</y>
-        <width>511</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Archon controller 1</string>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>491</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leLogSavePath_1">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="btnChangeLogSavePath_1">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>Tx / Rx Log save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Raw file save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leRawFileSavePath_1">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="btnChangeRawFileSavePath_1">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_8">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>120</y>
-        <width>511</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Archon controller 2</string>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>491</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_7">
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leLogSavePath_2">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="btnChangeLogSavePath_2">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Tx / Rx Log save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_16">
-          <property name="text">
-           <string>Raw file save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leRawFileSavePath_2">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="btnChangeRawFileSavePath_2">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_9">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>220</y>
-        <width>511</width>
-        <height>91</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Archon controller 3</string>
-      </property>
-      <widget class="QWidget" name="gridLayoutWidget_3">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>491</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_8">
-        <item row="0" column="1">
-         <widget class="QLineEdit" name="leLogSavePath_3">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QPushButton" name="btnChangeLogSavePath_3">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_17">
-          <property name="text">
-           <string>Tx / Rx Log save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Raw file save path:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="leRawFileSavePath_3">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="btnChangeRawFileSavePath_3">
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-    </widget>
     <widget class="QWidget" name="tabArchonController1">
      <attribute name="title">
-      <string>Archon controller 1</string>
+      <string>Guide</string>
      </attribute>
      <widget class="QWidget" name="horizontalLayoutWidget_2">
       <property name="geometry">
@@ -556,6 +371,9 @@
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QPushButton" name="btnApplyConfig_1">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
           <property name="text">
            <string>Apply config file</string>
           </property>
@@ -595,7 +413,7 @@
         <item>
          <widget class="QPushButton" name="btnFetch_1">
           <property name="enabled">
-           <bool>false</bool>
+           <bool>true</bool>
           </property>
           <property name="text">
            <string>Fetch</string>
@@ -739,7 +557,7 @@
     </widget>
     <widget class="QWidget" name="tabArchonController2">
      <attribute name="title">
-      <string>Archon controller 2</string>
+      <string>Sci_1 / Sci_2</string>
      </attribute>
      <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
@@ -949,224 +767,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-    <widget class="QWidget" name="tabArchonController3">
-     <attribute name="title">
-      <string>Archon controller 3</string>
-     </attribute>
-     <widget class="QGroupBox" name="groupBox_6">
-      <property name="geometry">
-       <rect>
-        <x>710</x>
-        <y>10</y>
-        <width>351</width>
-        <height>421</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Functions</string>
-      </property>
-      <widget class="QWidget" name="horizontalLayoutWidget_12">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>20</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_14">
-        <item>
-         <widget class="QLineEdit" name="leConfigFilePath_3">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnReadConfig_3">
-          <property name="text">
-           <string>Read config file</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_13">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>60</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_15">
-        <item>
-         <widget class="QPushButton" name="btnApplyConfig_3">
-          <property name="text">
-           <string>Apply config file</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_14">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>100</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_16">
-        <item>
-         <widget class="QPushButton" name="btnExpose_3">
-          <property name="text">
-           <string>Expose</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_15">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>140</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_17">
-        <item>
-         <widget class="QPushButton" name="btnFetch_3">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Fetch</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_16">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>40</y>
-        <width>681</width>
-        <height>391</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_18">
-       <item>
-        <widget class="QListWidget" name="lwTx_3"/>
-       </item>
-       <item>
-        <widget class="Line" name="line_3">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="lwRx_3"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_20">
-      <property name="geometry">
-       <rect>
-        <x>360</x>
-        <y>10</y>
-        <width>331</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_23">
-       <item>
-        <widget class="QLabel" name="label_22">
-         <property name="text">
-          <string>Rx.</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_11">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnTgRxLogAutoSave_3">
-         <property name="text">
-          <string>Auto save</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="horizontalLayoutWidget_21">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>331</width>
-        <height>25</height>
-       </rect>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_24">
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Tx.</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_12">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btnTgTxLogAutoSave_3">
-         <property name="text">
-          <string>Auto save</string>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="tabConcurrent">
-     <attribute name="title">
-      <string>Concurrent</string>
-     </attribute>
     </widget>
    </widget>
    <widget class="QLabel" name="label_10">

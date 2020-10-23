@@ -15,16 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(archon_1, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_1, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_1(int, QString)));
 
-    frameStatusCheckTimer = new QTimer(this);
+    frameStatusCheckTimer_1 = new QTimer(this);
 
-    connect(frameStatusCheckTimer, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
-
-    makeSaveDirectory();
-
-    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
-
-    ui->leLogSavePath_1->setText(saveDirectoryPath);
-    ui->leRawFileSavePath_1->setText(saveDirectoryPath);
+    connect(frameStatusCheckTimer_1, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
 
     isTxLogSaveFileCreated_1 = false;
     isRxLogSaveFileCreated_1 = false;
@@ -35,14 +28,14 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::readConfig(QFile &rFile) {
+void MainWindow::readConfig(QFile &rFile, QVector<QVector<QString>> &sections, QVector<QString> &configKeys, QVector<QString> &configValues) {
     QVector<QString> section;
 
     while(!rFile.atEnd()) {
         QString line = rFile.readLine();
 
         if (line == '\n') {
-            sections_1.push_back(section);
+            sections.push_back(section);
             section.clear();
         }
         else {
@@ -50,103 +43,94 @@ void MainWindow::readConfig(QFile &rFile) {
         }
     }
 
-    sections_1.push_back(section);
+    sections.push_back(section);
     section.clear();
 
-    for (int i = 0; i < sections_1.size(); i++) {
-        QString sectionName = sections_1[i][0];
+    for (int i = 0; i < sections.size(); i++) {
+        QString sectionName = sections[i][0];
 
         if (sectionName == "[CONFIG]\n") {
-            for (int j = 1; j < sections_1[i].size(); j++) {
-                QString keyValue = sections_1[i][j];
+            for (int j = 1; j < sections[i].size(); j++) {
+                QString keyValue = sections[i][j];
 
                 int pos = keyValue.indexOf('=');
                 QString key = keyValue.left(pos).toUpper().replace("\\", "/");
                 QString value = keyValue.remove(0, pos + 1).replace("\"", "").trimmed();
 
-                configKeys_1.push_back(key);
-                configValues_1.push_back(value);
+                configKeys.push_back(key);
+                configValues.push_back(value);
             }
         }
     }
 }
 
-void MainWindow::makeSaveDirectory() {
-    QString documentsPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QDir saveDirectory(documentsPath + "/ARCHONCOMMINSPECTIONSW_SAVEFILES");
+void MainWindow::makeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated) {
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
 
-    saveDirectory.mkpath(documentsPath + "/ARCHONCOMMINSPECTIONSW_SAVEFILES");
+    txLogSaveFile = new QFile("Guide_" +dateTime + "_TxLog.txt");
+    txLogSaveFile->open(QIODevice::WriteOnly);
+    isTxLogSaveFileCreated = true;
 }
 
-void MainWindow::makeTxLogSaveFile_1() {
-    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
-    QString fileName = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+void MainWindow::makeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated) {
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
 
-    txLogSaveFile_1 = new QFile(saveDirectoryPath + "/archon1_" +fileName + "_TxLog.txt");
-    txLogSaveFile_1->open(QIODevice::WriteOnly);
-    isTxLogSaveFileCreated_1 = true;
+    rxLogSaveFile = new QFile("Guide_" + dateTime + "_RxLog.txt");
+    rxLogSaveFile->open(QIODevice::WriteOnly);
+    isRxLogSaveFileCreated = true;
 }
 
-void MainWindow::makeRxLogSaveFile_1() {
-    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
-    QString fileName = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
-
-    rxLogSaveFile_1 = new QFile(saveDirectoryPath + "/archon1_" + fileName + "_RxLog.txt");
-    rxLogSaveFile_1->open(QIODevice::WriteOnly);
-    isRxLogSaveFileCreated_1 = true;
-}
-
-void MainWindow::txLogAutoSave_1(QString txStr) {
+void MainWindow::txLogAutoSave(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated, QString txStr) {
     QDateTime dateTime = QDateTime::currentDateTime();
 
     if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
-        closeTxLogSaveFile_1();
-        makeTxLogSaveFile_1();
+        closeTxLogSaveFile(txLogSaveFile, isTxLogSaveFileCreated);
+        makeTxLogSaveFile(txLogSaveFile, isTxLogSaveFileCreated);
     }
 
     hourCheck = dateTime.toString("HH");
     QString date = dateTime.toString("yyyy-MM-dd");
     QString time = dateTime.toString("HH:mm:ss.zzz");
-    txLogSaveFile_1->write(date.toStdString().c_str());
-    txLogSaveFile_1->write(" ");
-    txLogSaveFile_1->write(time.toStdString().c_str());
-    txLogSaveFile_1->write(" ");
-    txLogSaveFile_1->write(txStr.toStdString().c_str());
-    txLogSaveFile_1->flush();
+    txLogSaveFile->write(date.toStdString().c_str());
+    txLogSaveFile->write(" ");
+    txLogSaveFile->write(time.toStdString().c_str());
+    txLogSaveFile->write(" ");
+    txLogSaveFile->write(txStr.toStdString().c_str());
+    txLogSaveFile->flush();
 }
 
-void MainWindow::rxLogAutoSave_1(QString rxStr) {
+void MainWindow::rxLogAutoSave(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated, QString rxStr) {
     QDateTime dateTime = QDateTime::currentDateTime();
 
     if ((hourCheck != dateTime.toString("HH")) && (hourCheck != "")) {
-        closeRxLogSaveFile_1();
-        makeRxLogSaveFile_1();
+        closeRxLogSaveFile(rxLogSaveFile, isRxLogSaveFileCreated);
+        makeRxLogSaveFile(rxLogSaveFile, isRxLogSaveFileCreated);
     }
 
     hourCheck = dateTime.toString("HH");
     QString date = dateTime.toString("yyyy-MM-dd");
     QString time = dateTime.toString("HH:mm:ss.zzz");
-    rxLogSaveFile_1->write(date.toStdString().c_str());
-    rxLogSaveFile_1->write(" ");
-    rxLogSaveFile_1->write(time.toStdString().c_str());
-    rxLogSaveFile_1->write(" ");
-    rxLogSaveFile_1->write(rxStr.toStdString().c_str());
-    rxLogSaveFile_1->flush();
+    rxLogSaveFile->write(date.toStdString().c_str());
+    rxLogSaveFile->write(" ");
+    rxLogSaveFile->write(time.toStdString().c_str());
+    rxLogSaveFile->write(" ");
+    rxLogSaveFile->write(rxStr.toStdString().c_str());
+    rxLogSaveFile->flush();
 }
 
-void MainWindow::closeTxLogSaveFile_1() {
-    isTxLogSaveFileCreated_1 = false;
-    txLogSaveFile_1->close();
+void MainWindow::closeTxLogSaveFile(QFile *txLogSaveFile, bool &isTxLogSaveFileCreated) {
+    isTxLogSaveFileCreated = false;
+    txLogSaveFile->close();
 
-    delete txLogSaveFile_1;
+    delete txLogSaveFile;
 
 }
 
-void MainWindow::closeRxLogSaveFile_1() {
-    isRxLogSaveFileCreated_1 = false;
-    rxLogSaveFile_1->close();
+void MainWindow::closeRxLogSaveFile(QFile *rxLogSaveFile, bool &isRxLogSaveFileCreated) {
+    isRxLogSaveFileCreated = false;
+    rxLogSaveFile->close();
 
-    delete rxLogSaveFile_1;
+    delete rxLogSaveFile;
 }
 
 void MainWindow::addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment) {
@@ -259,7 +243,7 @@ void MainWindow::checkFrameStatusChange_1() {
         ui->btnFetch_1->setEnabled(true);
         ui->btnFetch_1->setText("Fetch");
 
-        frameStatusCheckTimer->stop();
+        frameStatusCheckTimer_1->stop();
     }
 }
 
@@ -268,68 +252,66 @@ void MainWindow::archonSignalResponse_1(int num, QString str) {
 
     switch (num) {
     case 0x10: // archonSend() Success
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
         break;
 
     case 0x11: // archonSend() Fail
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
         break;
 
     case 0x20: // archonRecv() Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
         break;
 
     case 0x21: // archonRecv() Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
         break;
 
     case 0x22: // archonRecv() Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x30: // archonBinRecv() Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
         break;
 
     case 0x31: // archonBinRecv() Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
         break;
 
     case 0x32: // archonBinRecv() Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 0.1 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 0.1 s)\n"); }
         break;
 
     case 0x40: // archonCmd() Send Success
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str); }
         ui->lwTx_1->addItem(dateNTime + str.trimmed());
         ui->lwTx_1->scrollToBottom();
         break;
     case 0x41: // archonCmd() Send Fail
-        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave_1(str.trimmed() + "-> Sending error!\n"); }
+        if (isTxLogSaveFileCreated_1 == true) { txLogAutoSave(txLogSaveFile_1, isTxLogSaveFileCreated_1, str.trimmed() + "-> Sending error!\n"); }
         ui->lwTx_1->addItem(dateNTime + str.trimmed() + "-> Sending error!");
         ui->lwTx_1->scrollToBottom();
         break;
 
     case 0x42: // archonCmd() Recv Success
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + '\n'); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + '\n'); }
         ui->lwRx_1->addItem(dateNTime + str);
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x43: // archonCmd() Recv Fail
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1(str + "-> Ack error!\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, str + "-> Ack error!\n"); }
         ui->lwRx_1->addItem(dateNTime + str + "-> Ack error!");
         ui->lwRx_1->scrollToBottom();
         break;
 
     case 0x44: // archonCmd() Recv Timeout
-        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave_1("Response timeout! (> 5 s)\n"); }
+        if (isRxLogSaveFileCreated_1 == true) { rxLogAutoSave(rxLogSaveFile_1, isRxLogSaveFileCreated_1, "Response timeout! (> 5 s)\n"); }
         ui->lwRx_1->addItem(dateNTime + "Response timeout! (> 5 s)");
         ui->lwRx_1->scrollToBottom();
         break;
     }
-
-    qApp->processEvents();
 }
 
 void MainWindow::processEvent() { qApp->processEvents(); }
@@ -353,7 +335,7 @@ void MainWindow::on_btnReadConfig_1_clicked() {
     }
 
     // Read config file
-    readConfig(rFile);
+    readConfig(rFile, sections_1, configKeys_1, configValues_1);
 
     ui->leConfigFilePath_1->setText(rFile.fileName());
 }
@@ -425,12 +407,11 @@ void MainWindow::on_btnExpose_1_clicked() {
     archon_1->archonCmd(configCommand.sprintf("WCONFIG%04X%s=%s", configLineNum, "PARAMETER1", "Exposures=1"));
     archon_1->archonCmd("LOADPARAMS");
 
-    frameStatusCheckTimer->start(500);
+    frameStatusCheckTimer_1->start(500);
 }
 
 void MainWindow::on_btnFetch_1_clicked() {
     // Fetch
-    QString saveDirectoryPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/ARCHONCOMMINSPECTIONSW_SAVEFILES";
     QString command;
     QString fileName;
     int frameSize;
@@ -454,10 +435,10 @@ void MainWindow::on_btnFetch_1_clicked() {
     lines = (frameSize + lineSize - 1) / lineSize;
     archon_1->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus[1] + 1) | 4) << 29, lines));
 
-    QFile imgFile(saveDirectoryPath + fileName.sprintf("/archon1_%dx%d_%d_1000ms.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
+    QFile wRawFile(fileName.sprintf("Guide_%dx%d_1000ms_%d.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
     int bytesRemaining = frameSize;
 
-    if (!imgFile.open(QFile::WriteOnly|QFile::Truncate)) {
+    if (!wRawFile.open(QFile::WriteOnly|QFile::Truncate)) {
         QMessageBox::warning(this, "Error", "Cannot open write file!");
 
         ui->btnFetch_1->setText("Fetch");
@@ -467,11 +448,11 @@ void MainWindow::on_btnFetch_1_clicked() {
 
     for (int i = 0; i < lines; i++) {
         archon_1->minusOneMsgRef();
-        imgFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)).toStdString().c_str());
+        wRawFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)).toStdString().c_str());
         bytesRemaining -= lineSize;
     }
 
-    imgFile.close();
+    wRawFile.close();
 
     archon_1->plusOneMsgRef();
 
@@ -487,55 +468,55 @@ void MainWindow::on_btnFetch_1_clicked() {
         QStringList keyValue = pair.split('=');
 
         if (keyValue[0] == "MOD10/TEMP") {
-            ui->lbTemp_1->setText(str.sprintf("MODm/TEMPA = %s (C)",keyValue[1].trimmed().toStdString().c_str()));
+            ui->lbTemp_1->setText(str.sprintf("MOD10/TEMPA = %s (C)",keyValue[1].trimmed().toStdString().c_str()));
         }
         else if (keyValue[0] == "MOD10/TEMPA") {
-            ui->lbSensorATemp_1->setText(str.sprintf("MODm/TEMPA = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
+            ui->lbSensorATemp_1->setText(str.sprintf("MOD10/TEMPA = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
-        else if (keyValue[0] == "MODm/TEMPB") {
-            ui->lbSensorBTemp_1->setText(str.sprintf("MODm/TEMPB = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
+        else if (keyValue[0] == "MOD10/TEMPB") {
+            ui->lbSensorBTemp_1->setText(str.sprintf("MOD10/TEMPB = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
-        else if (keyValue[0] == "MODm/TEMPC") {
-            ui->lbSensorCTemp_1->setText(str.sprintf("MODm/TEMPC = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
+        else if (keyValue[0] == "MOD10/TEMPC") {
+            ui->lbSensorCTemp_1->setText(str.sprintf("MOD10/TEMPC = %s (K)",keyValue[1].trimmed().toStdString().c_str()));
         }
     }
 
     // raw2fits
-    QFile rawFile(saveDirectoryPath + fileName);
+    QFile rRawFile(fileName);
 
-    if (!rawFile.open(QFile::ReadOnly)) {
+    if (!rRawFile.open(QFile::ReadOnly)) {
         QMessageBox::warning(this, "Error", "Cannot open raw file!");
 
         return;
     }
 
-    QFileInfo fileInfo(rawFile.fileName());
+    QFileInfo fileInfo(rRawFile.fileName());
     int w = fileInfo.fileName().split("_")[1].split("x")[0].toInt();
     int h = fileInfo.fileName().split("_")[1].split("x")[1].toInt();
 
-    saveFITS(rawFile, w, h);
+    saveFITS(rRawFile, w, h);
 
     ui->btnFetch_1->setText("Complete");
 }
 
 void MainWindow::on_btnTgTxLogAutoSave_1_toggled(bool checked) {
     if (checked) {
-        makeTxLogSaveFile_1();
+        makeTxLogSaveFile(txLogSaveFile_1, isTxLogSaveFileCreated_1);
         ui->btnTgTxLogAutoSave_1->setText("Auto saving...");
     }
     else {
-        closeTxLogSaveFile_1();
+        closeTxLogSaveFile(txLogSaveFile_1, isTxLogSaveFileCreated_1);
         ui->btnTgTxLogAutoSave_1->setText("Auto save");
     }
 }
 
 void MainWindow::on_btnTgRxLogAutoSave_1_toggled(bool checked) {
     if (checked) {
-        makeRxLogSaveFile_1();
+        makeRxLogSaveFile(rxLogSaveFile_1, isRxLogSaveFileCreated_1);
         ui->btnTgRxLogAutoSave_1->setText("Auto saving...");
     }
     else {
-        closeRxLogSaveFile_1();
+        closeRxLogSaveFile(rxLogSaveFile_1, isRxLogSaveFileCreated_1);
         ui->btnTgRxLogAutoSave_1->setText("Auto save");
     }
 }
