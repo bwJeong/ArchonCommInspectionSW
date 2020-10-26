@@ -855,52 +855,16 @@ void MainWindow::on_btnExpose_2_clicked() {
 }
 
 void MainWindow::on_btnFetch_1_clicked() {
-    // Fetch
     QString command;
     QString fileName;
     int frameSize;
     int lineSize = BURST_LEN;
     int lines;
 
-    QVector<int> lastFrameStatus = archon_1->getLastFrameStatus();
-
     ui->btnFetch_1->setEnabled(false);
     ui->btnFetch_1->setText("Wait...");
 
-    archon_1->archonCmd(command.sprintf("LOCK%d",lastFrameStatus[1] + 1)); // lastFrameStatus[1] = buf
-
-    if (lastFrameStatus[4]) { // lastFrameStatus[4] = sampleSize
-        frameSize = 4 * lastFrameStatus[2] * lastFrameStatus[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
-    }
-    else {
-        frameSize = 2 * lastFrameStatus[2] * lastFrameStatus[3];
-    }
-
-    lines = (frameSize + lineSize - 1) / lineSize;
-    archon_1->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus[1] + 1) | 4) << 29, lines));
-
-    QFile wRawFile(fileName.sprintf("Guide_%dx%d_1000ms_%d.raw", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
-    int bytesRemaining = frameSize;
-
-    if (!wRawFile.open(QFile::WriteOnly|QFile::Truncate)) {
-        QMessageBox::warning(this, "Error", "Cannot open write file!");
-
-        ui->btnFetch_1->setText("Fetch");
-
-        return;
-    }
-
-    for (int i = 0; i < lines; i++) {
-        archon_1->minusOneMsgRef();
-        wRawFile.write(archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining)));
-        bytesRemaining -= lineSize;
-    }
-
-    wRawFile.close();
-
-    archon_1->plusOneMsgRef();
-
-    // Read status
+    // Read archon status
     QString response = archon_1->archonCmd("STATUS");
 
     if (response == "") { return; }
@@ -915,20 +879,70 @@ void MainWindow::on_btnFetch_1_clicked() {
         statusValues_1.push_back(keyValue[1]);
     }
 
-    // raw2fits
-    QFile rRawFile(fileName);
+    // Fetch
+    QVector<int> lastFrameStatus = archon_1->getLastFrameStatus();
 
-    if (!rRawFile.open(QFile::ReadOnly)) {
-        QMessageBox::warning(this, "Error", "Cannot open raw file!");
+    archon_1->archonCmd(command.sprintf("LOCK%d",lastFrameStatus[1] + 1)); // lastFrameStatus[1] = buf
+
+    if (lastFrameStatus[4]) { // lastFrameStatus[4] = sampleSize
+        frameSize = 4 * lastFrameStatus[2] * lastFrameStatus[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
+    }
+    else {
+        frameSize = 2 * lastFrameStatus[2] * lastFrameStatus[3];
+    }
+
+    lines = (frameSize + lineSize - 1) / lineSize;
+    archon_1->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus[1] + 1) | 4) << 29, lines));
+
+    // Make FITS file
+    QFile fitsFile(fileName.sprintf("Guide_%dx%d_1000ms_%d.fits", lastFrameStatus[2], lastFrameStatus[3], lastFrameStatus[0]));
+    int bytesRemaining = frameSize;
+
+    if (!fitsFile.open(QFile::WriteOnly|QFile::Truncate)) {
+        QMessageBox::warning(this, "Error", "Cannot open write file!");
+
+        ui->btnFetch_1->setText("Fetch");
 
         return;
     }
 
-    QFileInfo fileInfo(rRawFile.fileName());
-    int w = fileInfo.fileName().split("_")[1].split("x")[0].toInt();
-    int h = fileInfo.fileName().split("_")[1].split("x")[1].toInt();
+    // Add FITS header
+    int headerlines = 0;
 
-    saveFITS(rRawFile, w, h, statusKeys_1, statusValues_1);
+    addFITSHeader(fitsFile, "SIMPLE", "T", "Conform to FITS standard"); headerlines++;
+    addFITSHeader(fitsFile, "BITPIX", "16", "Unsigned short data"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS", "2", "Number of axes"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS1", QString::number(lastFrameStatus[2]), "Image width"); headerlines++;
+    addFITSHeader(fitsFile, "NAXIS2", QString::number(lastFrameStatus[3]), "Image height"); headerlines++;
+    addFITSHeader(fitsFile, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
+    addFITSHeader(fitsFile, "BSCALE", "1", "Default scaling factor"); headerlines++;
+    addFITSHeader(fitsFile, "DATETIME", fitsDateTime, "Date & Time"); headerlines++;
+
+    for (int i = 0; i < statusKeys_1.size(); i++) {
+        addFITSHeader(fitsFile, statusKeys_1[i], statusValues_1[i], "Archon status"); headerlines++;
+    }
+
+    endFITSHeader(fitsFile, headerlines);
+
+    // Write image
+
+    for (int i = 0; i < lines; i++) {
+        archon_1->minusOneMsgRef();
+
+        QByteArray raw = archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+
+        // Add ...
+
+        fitsFile.write(raw);
+
+        //
+
+        bytesRemaining -= lineSize;
+    }
+
+    fitsFile.close();
+
+    archon_1->plusOneMsgRef();
 
     ui->btnFetch_1->setText("Complete");
 }
