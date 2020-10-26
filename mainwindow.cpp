@@ -47,7 +47,7 @@ void MainWindow::readConfig(QFile &rFile, QVector<QVector<QString>> &sections, Q
     while(!rFile.atEnd()) {
         QString line = rFile.readLine();
 
-        if (line == '\n') {
+        if (line == "\n") {
             sections.push_back(section);
             section.clear();
         }
@@ -931,77 +931,27 @@ void MainWindow::on_btnFetch_1_clicked() {
 
         QByteArray raw = archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining));
 
-        // Add ...
-
         fitsFile.write(raw);
-
-        //
-
         bytesRemaining -= lineSize;
     }
 
-    fitsFile.close();
-
     archon_1->plusOneMsgRef();
+    fitsFile.close();
 
     ui->btnFetch_1->setText("Complete");
 }
 
 void MainWindow::on_btnFetch_2_clicked() {
-    // Fetch
     QString command;
     QString fileName;
     int frameSize;
     int lineSize = BURST_LEN;
     int lines;
 
-    QVector<int> lastFrameStatus_Sci1 = archon_2->getLastFrameStatus();
-    QVector<int> lastFrameStatus_Sci2 = archon_3->getLastFrameStatus();
-
     ui->btnFetch_2->setEnabled(false);
     ui->btnFetch_2->setText("Wait...");
 
-    archon_2->archonCmd(command.sprintf("LOCK%d",lastFrameStatus_Sci1[1] + 1)); // lastFrameStatus[1] = buf
-    archon_3->archonCmd(command.sprintf("LOCK%d",lastFrameStatus_Sci2[1] + 1)); // lastFrameStatus[1] = buf
-
-    if (lastFrameStatus_Sci1[4]) { // lastFrameStatus[4] = sampleSize
-        frameSize = 4 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
-    }
-    else {
-        frameSize = 2 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3];
-    }
-
-    lines = (frameSize + lineSize - 1) / lineSize;
-    archon_2->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci1[1] + 1) | 4) << 29, lines));
-    archon_3->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci2[1] + 1) | 4) << 29, lines));
-
-    QFile wRawFile_Sci1(fileName.sprintf("Sci1_%dx%d_1000ms_%d.raw", lastFrameStatus_Sci1[2], lastFrameStatus_Sci1[3], lastFrameStatus_Sci1[0]));
-    QFile wRawFile_Sci2(fileName.sprintf("Sci2_%dx%d_1000ms_%d.raw", lastFrameStatus_Sci2[2], lastFrameStatus_Sci2[3], lastFrameStatus_Sci2[0]));
-    int bytesRemaining = frameSize;
-
-    if (!(wRawFile_Sci1.open(QFile::WriteOnly|QFile::Truncate) && wRawFile_Sci2.open(QFile::WriteOnly|QFile::Truncate))) {
-        QMessageBox::warning(this, "Error", "Cannot open write file!");
-
-        ui->btnFetch_2->setText("Fetch");
-
-        return;
-    }
-
-    for (int i = 0; i < lines; i++) {
-        archon_2->minusOneMsgRef();
-        archon_3->minusOneMsgRef();
-        wRawFile_Sci1.write(archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining)));
-        wRawFile_Sci2.write(archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining)));
-        bytesRemaining -= lineSize;
-    }
-
-    wRawFile_Sci1.close();
-    wRawFile_Sci2.close();
-
-    archon_2->plusOneMsgRef();
-    archon_3->plusOneMsgRef();
-
-    // Read status
+    // Read archon status
     QString response_Sci1 = archon_2->archonCmd("STATUS");
     QString response_Sci2 = archon_3->archonCmd("STATUS");
 
@@ -1026,24 +976,94 @@ void MainWindow::on_btnFetch_2_clicked() {
         statusValues_3.push_back(keyValue[1]);
     }
 
-    // raw2fits
-    QFile rRawFile_Sci1(fileName);
-    QFile rRawFile_Sci2(fileName);
+    // Fetch
+    QVector<int> lastFrameStatus_Sci1 = archon_2->getLastFrameStatus();
+    QVector<int> lastFrameStatus_Sci2 = archon_3->getLastFrameStatus();
 
-    if (!(rRawFile_Sci1.open(QFile::ReadOnly) && rRawFile_Sci2.open(QFile::ReadOnly))) {
-        QMessageBox::warning(this, "Error", "Cannot open raw file!");
+    archon_2->archonCmd(command.sprintf("LOCK%d",lastFrameStatus_Sci1[1] + 1)); // lastFrameStatus[1] = buf
+    archon_3->archonCmd(command.sprintf("LOCK%d",lastFrameStatus_Sci2[1] + 1)); // lastFrameStatus[1] = buf
+
+    if (lastFrameStatus_Sci1[4]) { // lastFrameStatus[4] = sampleSize
+        frameSize = 4 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
+    }
+    else {
+        frameSize = 2 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3];
+    }
+
+    lines = (frameSize + lineSize - 1) / lineSize;
+    archon_2->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci1[1] + 1) | 4) << 29, lines));
+    archon_3->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci2[1] + 1) | 4) << 29, lines));
+
+    // Make FITS file
+    QFile fitsFile_Sci1(fileName.sprintf("Sci1_%dx%d_1000ms_%d.fits", lastFrameStatus_Sci1[2], lastFrameStatus_Sci1[3], lastFrameStatus_Sci1[0]));
+    QFile fitsFile_Sci2(fileName.sprintf("Sci2_%dx%d_1000ms_%d.fits", lastFrameStatus_Sci2[2], lastFrameStatus_Sci2[3], lastFrameStatus_Sci2[0]));
+    int bytesRemaining = frameSize;
+
+    if (!(fitsFile_Sci1.open(QFile::WriteOnly|QFile::Truncate) && fitsFile_Sci2.open(QFile::WriteOnly|QFile::Truncate))) {
+        QMessageBox::warning(this, "Error", "Cannot open write file!");
+
+        ui->btnFetch_1->setText("Fetch");
 
         return;
     }
 
-    QFileInfo fileInfo(rRawFile_Sci1.fileName());
-    int w = fileInfo.fileName().split("_")[1].split("x")[0].toInt();
-    int h = fileInfo.fileName().split("_")[1].split("x")[1].toInt();
+    // Add FITS header
+    int headerlines = 0;
 
-    saveFITS(rRawFile_Sci1, w, h, statusKeys_2, statusValues_2);
-    saveFITS(rRawFile_Sci2, w, h, statusKeys_3, statusValues_3);
+    addFITSHeader(fitsFile_Sci1, "SIMPLE", "T", "Conform to FITS standard"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "BITPIX", "16", "Unsigned short data"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "NAXIS", "2", "Number of axes"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "NAXIS1", QString::number(lastFrameStatus_Sci1[2]), "Image width"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "NAXIS2", QString::number(lastFrameStatus_Sci1[3]), "Image height"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "BSCALE", "1", "Default scaling factor"); headerlines++;
+    addFITSHeader(fitsFile_Sci1, "DATETIME", fitsDateTime, "Date & Time"); headerlines++;
 
-    ui->btnFetch_1->setText("Complete");
+    for (int i = 0; i < statusKeys_2.size(); i++) {
+        addFITSHeader(fitsFile_Sci1, statusKeys_2[i], statusValues_2[i], "Archon status"); headerlines++;
+    }
+
+    endFITSHeader(fitsFile_Sci1, headerlines);
+
+    headerlines = 0;
+
+    addFITSHeader(fitsFile_Sci2, "SIMPLE", "T", "Conform to FITS standard"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "BITPIX", "16", "Unsigned short data"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "NAXIS", "2", "Number of axes"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "NAXIS1", QString::number(lastFrameStatus_Sci2[2]), "Image width"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "NAXIS2", QString::number(lastFrameStatus_Sci2[3]), "Image height"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "BSCALE", "1", "Default scaling factor"); headerlines++;
+    addFITSHeader(fitsFile_Sci2, "DATETIME", fitsDateTime, "Date & Time"); headerlines++;
+
+    for (int i = 0; i < statusKeys_3.size(); i++) {
+        addFITSHeader(fitsFile_Sci2, statusKeys_3[i], statusValues_3[i], "Archon status"); headerlines++;
+    }
+
+    endFITSHeader(fitsFile_Sci2, headerlines);
+
+    // Write image
+
+    for (int i = 0; i < lines; i++) {
+        archon_2->minusOneMsgRef();
+        archon_3->minusOneMsgRef();
+
+        QByteArray raw_Sci1 = archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray raw_Sci2 = archon_3->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+
+        fitsFile_Sci1.write(raw_Sci1);
+        fitsFile_Sci2.write(raw_Sci2);
+
+        bytesRemaining -= lineSize;
+    }
+
+    archon_2->plusOneMsgRef();
+    archon_3->plusOneMsgRef();
+
+    fitsFile_Sci1.close();
+    fitsFile_Sci2.close();
+
+    ui->btnFetch_2->setText("Complete");
 }
 
 void MainWindow::on_btnTgTxLogAutoSave_1_toggled(bool checked) {
