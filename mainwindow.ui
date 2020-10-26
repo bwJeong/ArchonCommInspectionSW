@@ -27,7 +27,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tabConnection">
      <attribute name="title">
@@ -436,7 +436,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>Tx.</string>
+          <string>Tx. Guide</string>
          </property>
         </widget>
        </item>
@@ -478,7 +478,7 @@
        <item>
         <widget class="QLabel" name="label_20">
          <property name="text">
-          <string>Rx.</string>
+          <string>Rx. Guide</string>
          </property>
         </widget>
        </item>
@@ -617,7 +617,7 @@
         <x>10</x>
         <y>40</y>
         <width>681</width>
-        <height>391</height>
+        <height>171</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -649,7 +649,7 @@
        <item>
         <widget class="QLabel" name="label_21">
          <property name="text">
-          <string>Rx.</string>
+          <string>Rx. Sci_1</string>
          </property>
         </widget>
        </item>
@@ -691,7 +691,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Tx.</string>
+          <string>Tx. Sci_1</string>
          </property>
         </widget>
        </item>
@@ -710,6 +710,115 @@
        </item>
        <item>
         <widget class="QPushButton" name="btnTgTxLogAutoSave_2">
+         <property name="text">
+          <string>Auto save</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_12">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>260</y>
+        <width>681</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_14">
+       <item>
+        <widget class="QListWidget" name="lwTx_3"/>
+       </item>
+       <item>
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lwRx_3"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_20">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>230</y>
+        <width>331</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_23">
+       <item>
+        <widget class="QLabel" name="label_22">
+         <property name="text">
+          <string>Rx. Sci_2</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_11">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnTgRxLogAutoSave_3">
+         <property name="text">
+          <string>Auto save</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_21">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>230</y>
+        <width>331</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_24">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Tx. Sci_2</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_12">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnTgTxLogAutoSave_3">
          <property name="text">
           <string>Auto save</string>
          </property>
