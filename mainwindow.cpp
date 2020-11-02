@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
 
+    // Initialization
     archon_1 = new Archon(this);
     archon_2 = new Archon(this);
     archon_3 = new Archon(this);
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     hourCheck = "";
 
-    //
+    // Signal & Slot
     connect(archon_1, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_2, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_3, SIGNAL(processEvent()), this, SLOT(processEvent()));
@@ -35,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(frameStatusCheckTimer_1, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
     connect(frameStatusCheckTimer_2, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_2()));
+
+    // Ui
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(2, false);
 }
 
 MainWindow::~MainWindow() {
@@ -313,8 +318,7 @@ void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QStr
     }
 
     // Fill FITS padding with zeroes
-    for (y = 0; y < 2880; y++)
-        pad[y] = 0;
+    for (y = 0; y < 2880; y++) { pad[y] = 0; }
 
     // Create file name
     s = rawFile.fileName().split(".")[0] + ".fits";
@@ -322,8 +326,7 @@ void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QStr
     // Save file
     QFile fitsFile(s);
 
-    if (!fitsFile.open(QIODevice::WriteOnly))
-    {
+    if (!fitsFile.open(QIODevice::WriteOnly)) {
         QMessageBox::warning(this, "Error", "Cannot open write file!");
 
         return;
@@ -367,7 +370,6 @@ void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QStr
 
             return;
         }
-
     }
 
     delete[] linebuf;
@@ -625,6 +627,69 @@ void MainWindow::archonSignalResponse_3(int num, QString str) {
 
 void MainWindow::processEvent() { qApp->processEvents(); }
 
+void MainWindow::on_btnTgConnection_1_toggled(bool checked) {
+    if (checked) {
+        if (!archon_1->archonConnect(ui->leIpAddr_1->text(), ui->lePortNumber_1->text())) {
+            QMessageBox::warning(this, "Error", "Cannot connect to Guide!");
+
+            ui->btnTgConnection_1->setChecked(false);
+        }
+        else {
+            ui->leIpAddr_1->setEnabled(false);
+            ui->lePortNumber_1->setEnabled(false);
+            ui->tabWidget->setTabEnabled(1, true);
+            ui->btnTgConnection_1->setText("Disconnect");
+        }
+    }
+    else {
+        archon_1->archonDisconnect();
+
+        ui->leIpAddr_1->setEnabled(true);
+        ui->lePortNumber_1->setEnabled(true);
+        ui->tabWidget->setTabEnabled(1, false);
+        ui->btnTgConnection_1->setText("Connect");
+    }
+}
+
+void MainWindow::on_btnTgConnection_2_toggled(bool checked) {
+    if (checked) {
+        if (!archon_2->archonConnect(ui->leIpAddr_2->text(), ui->lePortNumber_2->text())) {
+            QMessageBox::warning(this, "Error", "Cannot connect to Sci_1!");
+
+            ui->btnTgConnection_2->setChecked(false);
+
+            return;
+        }
+
+        if (!archon_3->archonConnect(ui->leIpAddr_3->text(), ui->lePortNumber_3->text())) {
+            QMessageBox::warning(this, "Error", "Cannot connect to Sci_2!");
+
+            ui->btnTgConnection_2->setChecked(false);
+
+            return;
+        }
+        else {
+            ui->leIpAddr_2->setEnabled(false);
+            ui->leIpAddr_3->setEnabled(false);
+            ui->lePortNumber_2->setEnabled(false);
+            ui->lePortNumber_3->setEnabled(false);
+            ui->tabWidget->setTabEnabled(2, true);
+            ui->btnTgConnection_2->setText("Disconnect");
+        }
+    }
+    else {
+        archon_2->archonDisconnect();
+        archon_3->archonDisconnect();
+
+        ui->leIpAddr_2->setEnabled(true);
+        ui->leIpAddr_3->setEnabled(true);
+        ui->lePortNumber_2->setEnabled(true);
+        ui->lePortNumber_3->setEnabled(true);
+        ui->tabWidget->setTabEnabled(2, false);
+        ui->btnTgConnection_2->setText("Connect");
+    }
+}
+
 void MainWindow::on_btnReadConfig_1_clicked() {
     // Open config file
     QString fileName = QFileDialog::getOpenFileName(
@@ -690,7 +755,6 @@ void MainWindow::on_btnApplyConfig_1_clicked() {
     for (int i = 0; i < configKeys_1.size(); i++) { archon_1->archonRecv(); }
 
     archon_1->archonCmd("APPLYALL");
-    //archon_1->archonCmd("POWERON");
 
     ui->btnApplyConfig_1->setEnabled(true);
     ui->btnApplyConfig_1->setText("Apply config file");
@@ -723,77 +787,26 @@ void MainWindow::on_btnApplyConfig_2_clicked() {
     archon_2->archonCmd("APPLYALL");
     archon_3->archonCmd("APPLYALL");
 
-    //archon_2->archonCmd("POWERON");
-    //archon_3->archonCmd("POWERON");
-
     ui->btnApplyConfig_2->setEnabled(true);
     ui->btnApplyConfig_2->setText("Apply config file");
 }
 
-void MainWindow::on_btnTgConnection_1_toggled(bool checked) {
-    if (checked) {
-        if (!archon_1->archonConnect(ui->leIpAddr_1->text(), ui->lePortNumber_1->text())) {
-            QMessageBox::warning(this, "Error", "Cannot connect to host!");
-
-            ui->btnTgConnection_1->setChecked(false);
-        }
-        else {
-            ui->leIpAddr_1->setEnabled(false);
-            ui->lePortNumber_1->setEnabled(false);
-            ui->btnTgConnection_1->setText("Disconnect");
-        }
-    }
-    else {
-        archon_1->archonDisconnect();
-
-        ui->leIpAddr_1->setEnabled(true);
-        ui->lePortNumber_1->setEnabled(true);
-        ui->btnTgConnection_1->setText("Connect");
-    }
+void MainWindow::on_btnCcdPwrOn_1_clicked() {
+    archon_1->archonCmd("POWERON");
 }
 
-void MainWindow::on_btnTgConnection_2_toggled(bool checked) {
-    if (checked) {
-        if (!archon_2->archonConnect(ui->leIpAddr_2->text(), ui->lePortNumber_2->text())) {
-            QMessageBox::warning(this, "Error", "Cannot connect to host!");
-
-            ui->btnTgConnection_2->setChecked(false);
-        }
-        else {
-            ui->leIpAddr_2->setEnabled(false);
-            ui->lePortNumber_2->setEnabled(false);
-            ui->btnTgConnection_2->setText("Disconnect");
-        }
-    }
-    else {
-        archon_2->archonDisconnect();
-
-        ui->leIpAddr_2->setEnabled(true);
-        ui->lePortNumber_2->setEnabled(true);
-        ui->btnTgConnection_2->setText("Connect");
-    }
+void MainWindow::on_btnCcdPwrOn_2_clicked() {
+    archon_2->archonCmd("POWERON");
+    archon_3->archonCmd("POWERON");
 }
 
-void MainWindow::on_btnTgConnection_3_toggled(bool checked) {
-    if (checked) {
-        if (!archon_3->archonConnect(ui->leIpAddr_3->text(), ui->lePortNumber_3->text())) {
-            QMessageBox::warning(this, "Error", "Cannot connect to host!");
+void MainWindow::on_btnCcdPwrOff_1_clicked() {
+    archon_1->archonCmd("POWEROFF");
+}
 
-            ui->btnTgConnection_3->setChecked(false);
-        }
-        else {
-            ui->leIpAddr_3->setEnabled(false);
-            ui->lePortNumber_3->setEnabled(false);
-            ui->btnTgConnection_3->setText("Disconnect");
-        }
-    }
-    else {
-        archon_3->archonDisconnect();
-
-        ui->leIpAddr_3->setEnabled(true);
-        ui->lePortNumber_3->setEnabled(true);
-        ui->btnTgConnection_3->setText("Connect");
-    }
+void MainWindow::on_btnCcdPwrOff_2_clicked() {
+    archon_2->archonCmd("POWEROFF");
+    archon_3->archonCmd("POWEROFF");
 }
 
 void MainWindow::on_btnExpose_1_clicked() {

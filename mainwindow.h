@@ -27,7 +27,7 @@ public:
 
     void readConfig(QFile &rFile, QVector<QVector<QString>> &sections, QVector<QString> &configKeys, QVector<QString> &configValues);
 
-    //
+    // Log file
     void makeTxLogSaveFile_1();
     void makeTxLogSaveFile_2();
     void makeTxLogSaveFile_3();
@@ -57,9 +57,7 @@ public:
     void endFITSHeader(QFile &fitsFile, int lines);
     void saveFITS(QFile &rawFile, const int w, const int h, QVector<QString> &statusKeys, QVector<QString> &statusValues);
 
-signals:
-
-public slots:
+private slots:
     void checkFrameStatusChange_1();
     void checkFrameStatusChange_2();
 
@@ -69,16 +67,20 @@ public slots:
 
     void processEvent();
 
-private slots:
+    // Btn
+    void on_btnTgConnection_1_toggled(bool checked);
+    void on_btnTgConnection_2_toggled(bool checked);
+
     void on_btnReadConfig_1_clicked();
     void on_btnReadConfig_2_clicked();
 
     void on_btnApplyConfig_1_clicked();
     void on_btnApplyConfig_2_clicked();
 
-    void on_btnTgConnection_1_toggled(bool checked);
-    void on_btnTgConnection_2_toggled(bool checked);
-    void on_btnTgConnection_3_toggled(bool checked);
+    void on_btnCcdPwrOn_1_clicked();
+    void on_btnCcdPwrOn_2_clicked();
+    void on_btnCcdPwrOff_1_clicked();
+    void on_btnCcdPwrOff_2_clicked();
 
     void on_btnExpose_1_clicked();
     void on_btnExpose_2_clicked();
@@ -95,13 +97,12 @@ private slots:
     void on_btnTgRxLogAutoSave_3_toggled(bool checked);
 
 private:
-    Ui::MainWindow *ui;   
-    Archon *archon_1, *archon_2, *archon_3;
+    Ui::MainWindow *ui;
 
+    Archon *archon_1, *archon_2, *archon_3;
     QFile *txLogSaveFile_1, *rxLogSaveFile_1;
     QFile *txLogSaveFile_2, *rxLogSaveFile_2;
     QFile *txLogSaveFile_3, *rxLogSaveFile_3;
-
     QTimer *frameStatusCheckTimer_1, *frameStatusCheckTimer_2;
 
     QVector<QVector<QString>> sections_1, sections_2;

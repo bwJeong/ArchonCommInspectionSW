@@ -26,8 +26,26 @@
       <height>471</height>
      </rect>
     </property>
+    <property name="tabPosition">
+     <enum>QTabWidget::North</enum>
+    </property>
+    <property name="tabShape">
+     <enum>QTabWidget::Rounded</enum>
+    </property>
     <property name="currentIndex">
      <number>0</number>
+    </property>
+    <property name="elideMode">
+     <enum>Qt::ElideNone</enum>
+    </property>
+    <property name="documentMode">
+     <bool>false</bool>
+    </property>
+    <property name="tabsClosable">
+     <bool>false</bool>
+    </property>
+    <property name="movable">
+     <bool>false</bool>
     </property>
     <widget class="QWidget" name="tabConnection">
      <attribute name="title">
@@ -42,8 +60,23 @@
         <height>71</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="title">
        <string>Guide</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <property name="checkable">
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
@@ -123,25 +156,21 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>100</y>
+        <y>110</y>
         <width>511</width>
-        <height>71</height>
+        <height>111</height>
        </rect>
       </property>
       <property name="title">
-       <string>Sci_1</string>
+       <string>Sci_1 / Sci_2</string>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QLabel" name="label_5">
-           <property name="text">
-            <string>IP Addr:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="1">
           <widget class="QLineEdit" name="leIpAddr_2">
            <property name="inputMask">
             <string/>
@@ -151,120 +180,14 @@
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_8">
-           <property name="text">
-            <string>Port number:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lePortNumber_2">
-           <property name="text">
-            <string>4242</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QPushButton" name="btnTgConnection_2">
-           <property name="text">
-            <string>Connect</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_3">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>180</y>
-        <width>511</width>
-        <height>71</height>
-       </rect>
-      </property>
-      <property name="title">
-       <string>Sci_2</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="label_6">
-           <property name="text">
-            <string>IP Addr:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="leIpAddr_3">
-           <property name="inputMask">
-            <string/>
-           </property>
-           <property name="text">
-            <string>10.0.0.13</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
+         <item row="1" column="3">
           <widget class="QLabel" name="label_9">
            <property name="text">
             <string>Port number:</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLineEdit" name="lePortNumber_3">
-           <property name="text">
-            <string>4242</string>
-           </property>
-          </widget>
-         </item>
-         <item>
+         <item row="1" column="5">
           <spacer name="horizontalSpacer_6">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -277,13 +200,97 @@
            </property>
           </spacer>
          </item>
-         <item>
-          <widget class="QPushButton" name="btnTgConnection_3">
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="leIpAddr_3">
+           <property name="inputMask">
+            <string/>
+           </property>
+           <property name="text">
+            <string>10.0.0.13</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <widget class="QLineEdit" name="lePortNumber_2">
+           <property name="text">
+            <string>4242</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="0" column="3">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Port number:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="6" rowspan="2">
+          <widget class="QPushButton" name="btnTgConnection_2">
            <property name="text">
             <string>Connect</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>IP Addr:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="5">
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>IP Addr:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="4">
+          <widget class="QLineEdit" name="lePortNumber_3">
+           <property name="text">
+            <string>4242</string>
            </property>
           </widget>
          </item>
@@ -371,9 +378,6 @@
        <layout class="QHBoxLayout" name="horizontalLayout_6">
         <item>
          <widget class="QPushButton" name="btnApplyConfig_1">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="text">
            <string>Apply config file</string>
           </property>
@@ -385,7 +389,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>100</y>
+         <y>140</y>
          <width>311</width>
          <height>41</height>
         </rect>
@@ -404,7 +408,7 @@
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>140</y>
+         <y>180</y>
          <width>311</width>
          <height>41</height>
         </rect>
@@ -417,6 +421,32 @@
           </property>
           <property name="text">
            <string>Fetch</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget_8">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>100</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QPushButton" name="btnCcdPwrOn_1">
+          <property name="text">
+           <string>CCD Power ON</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnCcdPwrOff_1">
+          <property name="text">
+           <string>CCD Power OFF</string>
           </property>
          </widget>
         </item>
@@ -435,6 +465,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_19">
        <item>
         <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Tx. Guide</string>
          </property>
@@ -477,6 +513,15 @@
       <layout class="QHBoxLayout" name="horizontalLayout_20">
        <item>
         <widget class="QLabel" name="label_20">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Rx. Guide</string>
          </property>
@@ -521,6 +566,12 @@
         <height>421</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="title">
        <string>Functions</string>
       </property>
@@ -550,7 +601,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_8">
+      <widget class="QWidget" name="horizontalLayoutWidget_9">
        <property name="geometry">
         <rect>
          <x>20</x>
@@ -559,7 +610,7 @@
          <height>41</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <layout class="QHBoxLayout" name="horizontalLayout_11">
         <item>
          <widget class="QPushButton" name="btnApplyConfig_2">
           <property name="text">
@@ -569,30 +620,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="horizontalLayoutWidget_9">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>100</y>
-         <width>311</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
-        <item>
-         <widget class="QPushButton" name="btnExpose_2">
-          <property name="text">
-           <string>Expose</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="horizontalLayoutWidget_10">
        <property name="geometry">
         <rect>
          <x>20</x>
-         <y>140</y>
+         <y>180</y>
          <width>311</width>
          <height>41</height>
         </rect>
@@ -605,6 +637,51 @@
           </property>
           <property name="text">
            <string>Fetch</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget_13">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>140</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_15">
+        <item>
+         <widget class="QPushButton" name="btnExpose_2">
+          <property name="text">
+           <string>Expose</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="horizontalLayoutWidget_14">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>100</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <item>
+         <widget class="QPushButton" name="btnCcdPwrOn_2">
+          <property name="text">
+           <string>CCD Power ON</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnCcdPwrOff_2">
+          <property name="text">
+           <string>CCD Power OFF</string>
           </property>
          </widget>
         </item>
@@ -648,6 +725,15 @@
       <layout class="QHBoxLayout" name="horizontalLayout_21">
        <item>
         <widget class="QLabel" name="label_21">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Rx. Sci_1</string>
          </property>
@@ -690,6 +776,15 @@
       <layout class="QHBoxLayout" name="horizontalLayout_22">
        <item>
         <widget class="QLabel" name="label_2">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Tx. Sci_1</string>
          </property>
@@ -757,6 +852,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_23">
        <item>
         <widget class="QLabel" name="label_22">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Rx. Sci_2</string>
          </property>
@@ -799,6 +900,12 @@
       <layout class="QHBoxLayout" name="horizontalLayout_24">
        <item>
         <widget class="QLabel" name="label_3">
+         <property name="font">
+          <font>
+           <weight>50</weight>
+           <bold>false</bold>
+          </font>
+         </property>
          <property name="text">
           <string>Tx. Sci_2</string>
          </property>
