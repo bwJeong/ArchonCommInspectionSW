@@ -29,12 +29,14 @@ public:
     bool recordCurrentFrameStatus();
     QVector<int> getLastFrameStatus();
 
-    // Etc.
+    // Msg ref.
     void plusOneMsgRef();
     void minusOneMsgRef();
 
 signals:
     void archonSignal(int num, QString str = "");
+
+    // To solve ui blocking
     void processEvent();
 
 private:

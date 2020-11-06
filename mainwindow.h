@@ -10,7 +10,6 @@
 #include <QStandardPaths>
 #include <QVector>
 #include <QTimer>
-#include <QtEndian>
 #include <QDebug>
 #include "archon.h"
 
@@ -25,6 +24,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    // Config file
     void readConfig(QFile &rFile, QVector<QVector<QString>> &sections, QVector<QString> &configKeys, QVector<QString> &configValues);
 
     // Log file
@@ -52,10 +52,9 @@ public:
     void closeRxLogSaveFile_2();
     void closeRxLogSaveFile_3();
 
-    // raw2fits
+    // FITS Header
     void addFITSHeader(QFile &fitsFile, QString key, QString value, QString comment);
     void endFITSHeader(QFile &fitsFile, int lines);
-    void saveFITS(QFile &rawFile, const int w, const int h, QVector<QString> &statusKeys, QVector<QString> &statusValues);
 
 private slots:
     void checkFrameStatusChange_1();
@@ -65,9 +64,10 @@ private slots:
     void archonSignalResponse_2(int num, QString str);
     void archonSignalResponse_3(int num, QString str);
 
+    // To solve ui blocking
     void processEvent();
 
-    // Btn
+    // Button
     void on_btnTgConnection_1_toggled(bool checked);
     void on_btnTgConnection_2_toggled(bool checked);
 

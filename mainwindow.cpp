@@ -12,41 +12,33 @@ MainWindow::MainWindow(QWidget *parent) :
     archon_1 = new Archon(this);
     archon_2 = new Archon(this);
     archon_3 = new Archon(this);
-
     frameStatusCheckTimer_1 = new QTimer(this);
     frameStatusCheckTimer_2 = new QTimer(this);
-
     isTxLogSaveFileCreated_1 = false;
     isRxLogSaveFileCreated_1 = false;
     isTxLogSaveFileCreated_2 = false;
     isRxLogSaveFileCreated_2 = false;
     isTxLogSaveFileCreated_3 = false;
     isRxLogSaveFileCreated_3 = false;
-
     hourCheck = "";
 
-    // Signal & Slot
     connect(archon_1, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_2, SIGNAL(processEvent()), this, SLOT(processEvent()));
     connect(archon_3, SIGNAL(processEvent()), this, SLOT(processEvent()));
-
     connect(archon_1, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_1(int, QString)));
     connect(archon_2, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_2(int, QString)));
     connect(archon_3, SIGNAL(archonSignal(int, QString)), this, SLOT(archonSignalResponse_3(int, QString)));
-
     connect(frameStatusCheckTimer_1, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_1()));
     connect(frameStatusCheckTimer_2, SIGNAL(timeout()), this, SLOT(checkFrameStatusChange_2()));
 
-    // Ui
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(2, false);
 }
 
-MainWindow::~MainWindow() {
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::readConfig(QFile &rFile, QVector<QVector<QString>> &sections, QVector<QString> &configKeys, QVector<QString> &configValues) {
+    // Config parsing
     QVector<QString> section;
 
     while(!rFile.atEnd()) {
@@ -83,7 +75,7 @@ void MainWindow::readConfig(QFile &rFile, QVector<QVector<QString>> &sections, Q
 }
 
 void MainWindow::makeTxLogSaveFile_1() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     txLogSaveFile_1 = new QFile("Guide_" + dateTime + "_TxLog.txt");
     txLogSaveFile_1->open(QIODevice::WriteOnly);
@@ -91,7 +83,7 @@ void MainWindow::makeTxLogSaveFile_1() {
 }
 
 void MainWindow::makeTxLogSaveFile_2() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     txLogSaveFile_2 = new QFile("Sci1_" + dateTime + "_TxLog.txt");
     txLogSaveFile_2->open(QIODevice::WriteOnly);
@@ -99,7 +91,7 @@ void MainWindow::makeTxLogSaveFile_2() {
 }
 
 void MainWindow::makeTxLogSaveFile_3() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     txLogSaveFile_3 = new QFile("Sci2_" + dateTime + "_TxLog.txt");
     txLogSaveFile_3->open(QIODevice::WriteOnly);
@@ -107,7 +99,7 @@ void MainWindow::makeTxLogSaveFile_3() {
 }
 
 void MainWindow::makeRxLogSaveFile_1() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     rxLogSaveFile_1 = new QFile("Guide_" + dateTime + "_RxLog.txt");
     rxLogSaveFile_1->open(QIODevice::WriteOnly);
@@ -115,7 +107,7 @@ void MainWindow::makeRxLogSaveFile_1() {
 }
 
 void MainWindow::makeRxLogSaveFile_2() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     rxLogSaveFile_2 = new QFile("Sci1_" + dateTime + "_RxLog.txt");
     rxLogSaveFile_2->open(QIODevice::WriteOnly);
@@ -123,7 +115,7 @@ void MainWindow::makeRxLogSaveFile_2() {
 }
 
 void MainWindow::makeRxLogSaveFile_3() {
-    QString dateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+    QString dateTime = QDateTime::currentDateTime().toString("yyMMddTHHmmss");
 
     rxLogSaveFile_3 = new QFile("Sci2_" + dateTime + "_RxLog.txt");
     rxLogSaveFile_3->open(QIODevice::WriteOnly);
@@ -300,96 +292,6 @@ void MainWindow::endFITSHeader(QFile &fitsFile, int lines) {
     for (lines = totalLines - lines; lines > 0; lines--) {
         fitsFile.write(qPrintable(QString("%1").arg(" ", -80)), 80);
     }
-}
-
-void MainWindow::saveFITS(QFile &rawFile, const int w, const int h, QVector<QString> &statusKeys, QVector<QString> &statusValues) {
-    int i, x, y, linesize, headerlines;
-    QVector<quint16> buf;
-    quint16 *linebuf;
-    char pad[2880];
-    QString s;
-
-    // Read raw file
-    while (!rawFile.atEnd()) {
-        QByteArray temp = rawFile.read(2);
-        quint16 elem = qToBigEndian((quint16)((temp[0] << 8) | (temp[1])));
-
-        buf.push_back(elem);
-    }
-
-    // Fill FITS padding with zeroes
-    for (y = 0; y < 2880; y++) { pad[y] = 0; }
-
-    // Create file name
-    s = rawFile.fileName().split(".")[0] + ".fits";
-
-    // Save file
-    QFile fitsFile(s);
-
-    if (!fitsFile.open(QIODevice::WriteOnly)) {
-        QMessageBox::warning(this, "Error", "Cannot open write file!");
-
-        return;
-    }
-
-    linesize = w * 2;
-
-    // Write primary FITS header
-    headerlines = 0;
-
-    addFITSHeader(fitsFile, "SIMPLE", "T", "Conform to FITS standard"); headerlines++;
-    addFITSHeader(fitsFile, "BITPIX", "16", "Unsigned short data"); headerlines++;
-    addFITSHeader(fitsFile, "NAXIS", "2", "Number of axes"); headerlines++;
-    addFITSHeader(fitsFile, "NAXIS1", QString::number(w), "Image width"); headerlines++;
-    addFITSHeader(fitsFile, "NAXIS2", QString::number(h), "Image height"); headerlines++;
-    addFITSHeader(fitsFile, "BZERO", "32768", "Offset for unsigned short"); headerlines++;
-    addFITSHeader(fitsFile, "BSCALE", "1", "Default scaling factor"); headerlines++;
-    addFITSHeader(fitsFile, "DATETIME", fitsDateTime, "Date & Time"); headerlines++;
-
-    for (int i = 0; i < statusKeys.size(); i++) {
-        addFITSHeader(fitsFile, statusKeys[i], statusValues[i], "Archon status"); headerlines++;
-    }
-
-    endFITSHeader(fitsFile, headerlines);
-
-    // Write image data (byte order must be swapped)
-    linebuf = new quint16[w];
-
-    for (y = 0; y < h; y++) {
-        for (x = 0; x < w; x++) {
-            linebuf[x] = qToBigEndian((quint16)(buf[x + y * w] ^ 0x8000));
-
-            qApp->processEvents();
-        }
-
-        if (fitsFile.write((char *)linebuf, linesize) != linesize) {
-            QMessageBox::warning(this, "Error", "Cannot write fits file!");
-
-            rawFile.close();
-            fitsFile.close();
-
-            return;
-        }
-    }
-
-    delete[] linebuf;
-
-    // Pad to end of FITS block
-    i = 2880 - (w * h * 2) % 2880;
-
-    if (i != 2880) {
-        if (fitsFile.write(pad, i) != i) {
-            printf("Cannot write fits file! [err code: 02]\n");
-
-            rawFile.close();
-            fitsFile.close();
-
-            return;
-        }
-    }
-
-    rawFile.close();
-    fitsFile.close();
 }
 
 void MainWindow::checkFrameStatusChange_1() {
@@ -893,12 +795,21 @@ void MainWindow::on_btnFetch_1_clicked() {
     }
 
     // Fetch
+    //////////////////////////////////////
+    /// \brief lastFrameStatus
+    /// lastFrameStatus[0] -> frame
+    /// lastFrameStatus[1] -> buf
+    /// lastFrameStatus[2] -> frameW
+    /// lastFrameStatus[3] -> frameH
+    /// lastFrameStatus[4] -> sampleSize
+    //////////////////////////////////////
+
     QVector<int> lastFrameStatus = archon_1->getLastFrameStatus();
 
-    archon_1->archonCmd(command.sprintf("LOCK%d",lastFrameStatus[1] + 1)); // lastFrameStatus[1] = buf
+    archon_1->archonCmd(command.sprintf("LOCK%d",lastFrameStatus[1] + 1));
 
-    if (lastFrameStatus[4]) { // lastFrameStatus[4] = sampleSize
-        frameSize = 4 * lastFrameStatus[2] * lastFrameStatus[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
+    if (lastFrameStatus[4]) {
+        frameSize = 4 * lastFrameStatus[2] * lastFrameStatus[3];
     }
     else {
         frameSize = 2 * lastFrameStatus[2] * lastFrameStatus[3];
@@ -938,7 +849,6 @@ void MainWindow::on_btnFetch_1_clicked() {
     endFITSHeader(fitsFile, headerlines);
 
     // Write image
-
     for (int i = 0; i < lines; i++) {
         archon_1->minusOneMsgRef();
 
