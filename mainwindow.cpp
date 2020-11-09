@@ -671,7 +671,7 @@ void MainWindow::on_btnApplyConfig_1_clicked() {
         ui->btnApplyConfig_1->setText("Apply config file");
     }
     else {
-        QMessageBox::warning(this, "Error", "Please read the config file before applying");
+        QMessageBox::warning(this, "Error", "Please read the config file before applying!");
     }
 }
 
@@ -707,7 +707,7 @@ void MainWindow::on_btnApplyConfig_2_clicked() {
         ui->btnApplyConfig_2->setText("Apply config file");
     }
     else {
-        QMessageBox::warning(this, "Error", "Please read the config file before applying");
+        QMessageBox::warning(this, "Error", "Please read the config file before applying!");
     }
 }
 
