@@ -33,7 +33,7 @@
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="elideMode">
      <enum>Qt::ElideNone</enum>
@@ -417,7 +417,7 @@
         <item>
          <widget class="QPushButton" name="btnFetch_1">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Fetch</string>
@@ -633,7 +633,7 @@
         <item>
          <widget class="QPushButton" name="btnFetch_2">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="text">
            <string>Fetch</string>
@@ -964,7 +964,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>v0.2.0</string>
+     <string>v0.2.1</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

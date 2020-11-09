@@ -611,6 +611,10 @@ void MainWindow::on_btnReadConfig_1_clicked() {
     }
 
     // Read config file
+    sections_1.clear();
+    configKeys_1.clear();
+    configValues_1.clear();
+
     readConfig(rFile, sections_1, configKeys_1, configValues_1);
 
     ui->leConfigFilePath_1->setText(rFile.fileName());
@@ -635,6 +639,10 @@ void MainWindow::on_btnReadConfig_2_clicked() {
     }
 
     // Read config file
+    sections_2.clear();
+    configKeys_2.clear();
+    configValues_2.clear();
+
     readConfig(rFile, sections_2, configKeys_2, configValues_2);
 
     ui->leConfigFilePath_2->setText(rFile.fileName());
@@ -643,54 +651,64 @@ void MainWindow::on_btnReadConfig_2_clicked() {
 void MainWindow::on_btnApplyConfig_1_clicked() {
     QString configCommand;
 
-    ui->btnApplyConfig_1->setEnabled(false);
-    ui->btnApplyConfig_1->setText("Working...");
+    if (ui->leConfigFilePath_1->text() != "") {
+        ui->btnApplyConfig_1->setEnabled(false);
+        ui->btnApplyConfig_1->setText("Working...");
 
-    archon_1->archonCmd("CLEARCONFIG");
+        archon_1->archonCmd("CLEARCONFIG");
 
-    for (int i = 0; i < configKeys_1.size(); i++) {
-        configCommand.sprintf("WCONFIG%04X%s=%s", i, configKeys_1[i].toStdString().c_str(), configValues_1[i].toStdString().c_str());
-        archon_1->archonSend(configCommand);
+        for (int i = 0; i < configKeys_1.size(); i++) {
+            configCommand.sprintf("WCONFIG%04X%s=%s", i, configKeys_1[i].toStdString().c_str(), configValues_1[i].toStdString().c_str());
+            archon_1->archonSend(configCommand);
+        }
+
+        for (int i = 0 ; i < configKeys_1.size(); i++) { archon_1->minusOneMsgRef(); }
+        for (int i = 0; i < configKeys_1.size(); i++) { archon_1->archonRecv(); }
+
+        archon_1->archonCmd("APPLYALL");
+
+        ui->btnApplyConfig_1->setEnabled(true);
+        ui->btnApplyConfig_1->setText("Apply config file");
     }
-
-    for (int i = 0 ; i < configKeys_1.size(); i++) { archon_1->minusOneMsgRef(); }
-    for (int i = 0; i < configKeys_1.size(); i++) { archon_1->archonRecv(); }
-
-    archon_1->archonCmd("APPLYALL");
-
-    ui->btnApplyConfig_1->setEnabled(true);
-    ui->btnApplyConfig_1->setText("Apply config file");
+    else {
+        QMessageBox::warning(this, "Error", "Please read the config file before applying");
+    }
 }
 
 void MainWindow::on_btnApplyConfig_2_clicked() {
     QString configCommand;
 
-    ui->btnApplyConfig_2->setEnabled(false);
-    ui->btnApplyConfig_2->setText("Working...");
+    if (ui->leConfigFilePath_2->text() != "") {
+        ui->btnApplyConfig_2->setEnabled(false);
+        ui->btnApplyConfig_2->setText("Working...");
 
-    archon_2->archonCmd("CLEARCONFIG");
-    archon_3->archonCmd("CLEARCONFIG");
+        archon_2->archonCmd("CLEARCONFIG");
+        archon_3->archonCmd("CLEARCONFIG");
 
-    for (int i = 0; i < configKeys_2.size(); i++) {
-        configCommand.sprintf("WCONFIG%04X%s=%s", i, configKeys_2[i].toStdString().c_str(), configValues_2[i].toStdString().c_str());
-        archon_2->archonSend(configCommand);
-        archon_3->archonSend(configCommand);
+        for (int i = 0; i < configKeys_2.size(); i++) {
+            configCommand.sprintf("WCONFIG%04X%s=%s", i, configKeys_2[i].toStdString().c_str(), configValues_2[i].toStdString().c_str());
+            archon_2->archonSend(configCommand);
+            archon_3->archonSend(configCommand);
+        }
+
+        for (int i = 0 ; i < configKeys_2.size(); i++) {
+            archon_2->minusOneMsgRef();
+            archon_3->minusOneMsgRef();
+        }
+        for (int i = 0; i < configKeys_2.size(); i++) {
+            archon_2->archonRecv();
+            archon_3->archonRecv();
+        }
+
+        archon_2->archonCmd("APPLYALL");
+        archon_3->archonCmd("APPLYALL");
+
+        ui->btnApplyConfig_2->setEnabled(true);
+        ui->btnApplyConfig_2->setText("Apply config file");
     }
-
-    for (int i = 0 ; i < configKeys_2.size(); i++) {
-        archon_2->minusOneMsgRef();
-        archon_3->minusOneMsgRef();
+    else {
+        QMessageBox::warning(this, "Error", "Please read the config file before applying");
     }
-    for (int i = 0; i < configKeys_2.size(); i++) {
-        archon_2->archonRecv();
-        archon_3->archonRecv();
-    }
-
-    archon_2->archonCmd("APPLYALL");
-    archon_3->archonCmd("APPLYALL");
-
-    ui->btnApplyConfig_2->setEnabled(true);
-    ui->btnApplyConfig_2->setText("Apply config file");
 }
 
 void MainWindow::on_btnCcdPwrOn_1_clicked() {
@@ -775,6 +793,9 @@ void MainWindow::on_btnFetch_1_clicked() {
     int frameSize;
     int lineSize = BURST_LEN;
     int lines;
+
+    statusKeys_1.clear();
+    statusValues_1.clear();
 
     ui->btnFetch_1->setEnabled(false);
     ui->btnFetch_1->setText("Wait...");
@@ -870,6 +891,11 @@ void MainWindow::on_btnFetch_2_clicked() {
     int frameSize;
     int lineSize = BURST_LEN;
     int lines;
+
+    statusKeys_2.clear();
+    statusValues_2.clear();
+    statusKeys_3.clear();
+    statusValues_3.clear();
 
     ui->btnFetch_2->setEnabled(false);
     ui->btnFetch_2->setText("Wait...");
