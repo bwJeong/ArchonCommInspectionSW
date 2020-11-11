@@ -895,9 +895,9 @@ void MainWindow::on_btnFetch_1_clicked() {
 void MainWindow::on_btnFetch_2_clicked() {
     QString command;
     QString fileName;
-    int frameSize;
+    int frameSize_Sci1, frameSize_Sci2;
     int lineSize = BURST_LEN;
-    int lines;
+    int lines_Sci1, lines_Sci2;
 
     statusKeys_2.clear();
     statusValues_2.clear();
@@ -940,20 +940,32 @@ void MainWindow::on_btnFetch_2_clicked() {
     archon_3->archonCmd(command.sprintf("LOCK%d",lastFrameStatus_Sci2[1] + 1)); // lastFrameStatus[1] = buf
 
     if (lastFrameStatus_Sci1[4]) { // lastFrameStatus[4] = sampleSize
-        frameSize = 4 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
+        frameSize_Sci1 = 4 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
     }
     else {
-        frameSize = 2 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3];
+        frameSize_Sci1 = 2 * lastFrameStatus_Sci1[2] * lastFrameStatus_Sci1[3];
     }
 
-    lines = (frameSize + lineSize - 1) / lineSize;
-    archon_2->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci1[1] + 1) | 4) << 29, lines));
-    archon_3->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci2[1] + 1) | 4) << 29, lines));
+    lines_Sci1 = (frameSize_Sci1 + lineSize - 1) / lineSize;
+
+    if (lastFrameStatus_Sci2[4]) { // lastFrameStatus[4] = sampleSize
+        frameSize_Sci2 = 4 * lastFrameStatus_Sci2[2] * lastFrameStatus_Sci2[3]; // lastFrameStatus[2] = frameW, lastFrameStatus[3] = frameH
+    }
+    else {
+        frameSize_Sci2 = 2 * lastFrameStatus_Sci2[2] * lastFrameStatus_Sci2[3];
+    }
+
+    lines_Sci2 = (frameSize_Sci2 + lineSize - 1) / lineSize;
+
+
+    archon_2->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci1[1] + 1) | 4) << 29, lines_Sci1));
+    archon_3->archonSend(command.sprintf("FETCH%08X%08X", ((lastFrameStatus_Sci2[1] + 1) | 4) << 29, lines_Sci2));
 
     // Make FITS file
     QFile fitsFile_Sci1(fileName.sprintf("Sci1_%dx%d_1000ms_%d.fits", lastFrameStatus_Sci1[2], lastFrameStatus_Sci1[3], lastFrameStatus_Sci1[0]));
     QFile fitsFile_Sci2(fileName.sprintf("Sci2_%dx%d_1000ms_%d.fits", lastFrameStatus_Sci2[2], lastFrameStatus_Sci2[3], lastFrameStatus_Sci2[0]));
-    int bytesRemaining = frameSize;
+    int bytesRemaining_Sci1 = frameSize_Sci1;
+    int bytesRemaining_Sci2 = frameSize_Sci2;
 
     if (!(fitsFile_Sci1.open(QFile::WriteOnly|QFile::Truncate) && fitsFile_Sci2.open(QFile::WriteOnly|QFile::Truncate))) {
         QMessageBox::warning(this, "Error", "Cannot open write file!");
@@ -999,10 +1011,10 @@ void MainWindow::on_btnFetch_2_clicked() {
     endFITSHeader(fitsFile_Sci2, headerlines);
 
     // Write image
-    for (int i = 0; i < lines; i++) {
+    for (int i = 0; i < lines_Sci1; i++) {
         archon_2->minusOneMsgRef();
 
-        QByteArray raw = archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray raw = archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining_Sci1));
         QByteArray lineBuf;
 
         for (int j = 0; j < raw.size(); j += 2) {
@@ -1012,16 +1024,16 @@ void MainWindow::on_btnFetch_2_clicked() {
 
         fitsFile_Sci1.write(lineBuf, BURST_LEN);
 
-        bytesRemaining -= lineSize;
+        bytesRemaining_Sci1 -= lineSize;
     }
 
     archon_2->plusOneMsgRef();
     fitsFile_Sci1.close();
 
-    for (int i = 0; i < lines; i++) {
+    for (int i = 0; i < lines_Sci2; i++) {
         archon_3->minusOneMsgRef();
 
-        QByteArray raw = archon_3->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray raw = archon_3->archonBinRecv().left(qMin(lineSize, bytesRemaining_Sci2));
         QByteArray lineBuf;
 
         for (int j = 0; j < raw.size(); j += 2) {
@@ -1031,7 +1043,7 @@ void MainWindow::on_btnFetch_2_clicked() {
 
         fitsFile_Sci2.write(lineBuf, BURST_LEN);
 
-        bytesRemaining -= lineSize;
+        bytesRemaining_Sci2 -= lineSize;
     }
 
     archon_3->plusOneMsgRef();
