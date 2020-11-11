@@ -874,8 +874,15 @@ void MainWindow::on_btnFetch_1_clicked() {
         archon_1->minusOneMsgRef();
 
         QByteArray raw = archon_1->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray lineBuf;
 
-        fitsFile.write(raw);
+        for (int j = 0; j < raw.size(); j += 2) {
+            lineBuf.push_back(raw[j + 1] ^ 0x80);
+            lineBuf.push_back(raw[j]);
+        }
+
+        fitsFile.write(lineBuf, BURST_LEN);
+
         bytesRemaining -= lineSize;
     }
 
@@ -992,24 +999,42 @@ void MainWindow::on_btnFetch_2_clicked() {
     endFITSHeader(fitsFile_Sci2, headerlines);
 
     // Write image
-
     for (int i = 0; i < lines; i++) {
         archon_2->minusOneMsgRef();
-        archon_3->minusOneMsgRef();
 
-        QByteArray raw_Sci1 = archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining));
-        QByteArray raw_Sci2 = archon_3->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray raw = archon_2->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray lineBuf;
 
-        fitsFile_Sci1.write(raw_Sci1);
-        fitsFile_Sci2.write(raw_Sci2);
+        for (int j = 0; j < raw.size(); j += 2) {
+            lineBuf.push_back(raw[j + 1] ^ 0x80);
+            lineBuf.push_back(raw[j]);
+        }
+
+        fitsFile_Sci1.write(lineBuf, BURST_LEN);
 
         bytesRemaining -= lineSize;
     }
 
     archon_2->plusOneMsgRef();
-    archon_3->plusOneMsgRef();
-
     fitsFile_Sci1.close();
+
+    for (int i = 0; i < lines; i++) {
+        archon_3->minusOneMsgRef();
+
+        QByteArray raw = archon_3->archonBinRecv().left(qMin(lineSize, bytesRemaining));
+        QByteArray lineBuf;
+
+        for (int j = 0; j < raw.size(); j += 2) {
+            lineBuf.push_back(raw[j + 1] ^ 0x80);
+            lineBuf.push_back(raw[j]);
+        }
+
+        fitsFile_Sci2.write(lineBuf, BURST_LEN);
+
+        bytesRemaining -= lineSize;
+    }
+
+    archon_3->plusOneMsgRef();
     fitsFile_Sci2.close();
 
     ui->btnFetch_2->setText("Complete");
