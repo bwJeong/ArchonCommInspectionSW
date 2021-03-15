@@ -3,7 +3,7 @@
 
 ## 어떠한 작업을 수행하는 S/W인가요?
 - 총 3대의 CCD 컨트롤러를 병행 제어하기 위한 통신 인터페이스 점검 S/W
-- 사용 CCD 컨트롤러: Archon (STA)
+- 사용 CCD 컨트롤러: Archon (http://www.sta-inc.net/archon/)
 
 ## Communication
 - TCP/IP 소켓 통신 (Archon <-> PC)
