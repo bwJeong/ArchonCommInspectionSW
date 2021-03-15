@@ -5,11 +5,11 @@
 - 총 3대의 CCD 컨트롤러를 병행 제어하기 위한 통신 인터페이스 점검 S/W
 - 사용 CCD 컨트롤러: Archon (http://www.sta-inc.net/archon/)
 
-## Communication
+## 커뮤니케이션
 - TCP/IP 소켓 통신 (Archon <-> PC)
 - 총 3대의 Archon (Guide, Science 1, Science 2)은 Gigabit ethernet을 통해 PC와 Communication을 수행
 
-## Ui 구성
+## 
 - Connection 메뉴
 
 
