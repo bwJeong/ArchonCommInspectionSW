@@ -6,7 +6,7 @@
 - 사용 CCD 컨트롤러: Archon (http://www.sta-inc.net/archon/)
 
 ## 커뮤니케이션
-- TCP/IP 소켓 통신 (Archon <-> PC)
+- 이더넷 소켓 통신 (Archon <-> PC)
 - 총 3대의 Archon (Guide, Science 1, Science 2)은 Gigabit ethernet을 통해 PC와 Communication을 수행
 
 ## 
