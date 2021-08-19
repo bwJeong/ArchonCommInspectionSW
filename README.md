@@ -18,9 +18,9 @@
 
 | # | Control | Description |
 |:-:|:-------:|-------------|
-|1|Line edit|TCP/IP 소켓 통신 연결을 수행할 IP 주소를 입력하는 곳.<br/>- Guide: 10.0.0.2 (Default)<br/>- Sci_1: 10.0.0.12 (Default)<br/>- Sci_2: 10.0.0.13 (Default)|
-|2|Line edit|TCP/IP 소켓 통신 연결을 수행할 Port number를 입력하는 곳.<br/>- Guide: 4242 (Default)<br/>- Sci_1: 4242 (Default)<br/>- Sci_2: 4242 (Default)|
-|3|Toggle button|1, 2에 입력된 IP 주소 및 Port number를 기반으로 TCP/IP 소켓 통신 연결 및 해제를 수행.|
+|1|Line edit|이더넷 소켓 통신 연결을 수행할 IP 주소를 입력하는 곳.<br/>- Guide: 10.0.0.2 (Default)<br/>- Sci_1: 10.0.0.12 (Default)<br/>- Sci_2: 10.0.0.13 (Default)|
+|2|Line edit|이더넷 소켓 통신 연결을 수행할 Port number를 입력하는 곳.<br/>- Guide: 4242 (Default)<br/>- Sci_1: 4242 (Default)<br/>- Sci_2: 4242 (Default)|
+|3|Toggle button|1, 2에 입력된 IP 주소 및 Port number를 기반으로 이더넷 소켓 통신 연결 및 해제를 수행.|
 <br/>
 
 - Guide 메뉴
